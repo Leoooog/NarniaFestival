@@ -1,0 +1,158 @@
+ 
+<html>
+<body>
+<table>
+  <caption>Ruoli</caption>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Descrizione</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>admin</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>iscritto</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>ospite</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>partner</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption>Utenti</caption>
+  <thead>
+    <tr>
+      <th>IdUtente</th>
+      <th>Nome</th>
+      <th>Cognome</th>
+      <th>Username</th>
+      <th>PasswordHash</th>
+      <th>Email</th>
+      <th>CodiceVerifica</th>
+      <th>Verificato</th>
+      <th>Ruolo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BINARY(16)</td>
+      <td>VARCHAR(50)</td>
+      <td>VARCHAR(50)</td>
+      <td>VARCHAR(50)</td>
+      <td>VARCHAR(64)</td>
+      <td>VARCHAR(320)</td>
+      <td>VARCHAR(6)</td>
+      <td>TINYINT</td>
+      <td>INT</td>
+    </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+    <tr>
+      <th>Nome colonna</th>
+      <th>Tipo dato</th>
+      <th>Descrizione</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Id</td>
+      <td>INT</td>
+      <td>Identificatore univoco del tipo di evento</td>
+    </tr>
+    <tr>
+      <td>Descrizione</td>
+      <td>VARCHAR(50)</td>
+      <td>Descrizione del tipo di evento</td>
+    </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+    <tr>
+      <th>Nome colonna</th>
+      <th>Tipo dato</th>
+      <th>Descrizione</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IdEvento</td>
+      <td>BINARY(16)</td>
+      <td>Identificatore univoco dell'evento</td>
+    </tr>
+    <tr>
+      <td>Titolo</td>
+      <td>VARCHAR(50)</td>
+      <td>Titolo dell'evento</td>
+    </tr>
+    <tr>
+      <td>Sottotitolo</td>
+      <td>VARCHAR(100)</td>
+      <td>Sottotitolo dell'evento</td>
+    </tr>
+    <tr>
+      <td>Descrizione</td>
+      <td>VARCHAR(1024)</td>
+      <td>Descrizione dell'evento</td>
+    </tr>
+    <tr>
+      <td>Durata</td>
+      <td>TIME</td>
+      <td>Durata dell'evento</td>
+    </tr>
+    <tr>
+      <td>Data</td>
+      <td>DATETIME</td>
+      <td>Data e ora dell'evento</td>
+    </tr>
+    <tr>
+      <td>Luogo</td>
+      <td>VARCHAR(500)</td>
+      <td>Luogo dell'evento</td>
+    </tr>
+    <tr>
+      <td>Posizione</td>
+      <td>GEOMETRY SRID 4326</td>
+      <td>Coordinate geografiche del luogo dell'evento</td>
+    </tr>
+    <tr>
+      <td>Tipo</td>
+      <td>INT</td>
+      <td>Identificatore del tipo di evento</td>
+    </tr>
+    <tr>
+      <td>Prezzo</td>
+      <td>FLOAT(5,2)</td>
+      <td>Prezzo dell'evento</td>
+    </tr>
+    <tr>
+      <td>ConPrenotazione</td>
+      <td>TINYINT</td>
+      <td>Flag che indica se l'evento richiede una prenotazione</td>
+    </tr>
+    <tr>
+      <td>Capienza</td>
+      <td>INT</td>
+      <td>Capienza massima dell'evento</td>
+    </tr>
+    <tr>
+      <td>PostiOccupati</td>
+      <td>INT</td>
+      <td>Numero di posti occupati per l'evento</td>
+    </tr>
+  </tbody>
+</body>
+</html>
