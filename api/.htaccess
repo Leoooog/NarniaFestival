@@ -1,3 +1,9 @@
-RewriteEngine on
-RewriteRule ^$ public/ [L]
-RewriteRule (.*) public/$1 [L]
+RewriteEngine On
+
+# Rimuovi lo slash finale dalle richieste URL
+RewriteRule ^(.+)/$ $1 [R=301,L]
+
+# Riscrivi la richiesta in public/ se non corrisponde ad un file o una directory esistente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]

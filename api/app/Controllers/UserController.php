@@ -19,7 +19,7 @@ class UserController extends \App\Controllers\Controller
     public function index(Request $request, Response $response, array $args)
     {
 
-        $query = "SELECT BIN_TO_UUID(IdUtente) As IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo FROM Utenti";
+        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo FROM Utenti";
         $result = $this->db->query($query);
 
         $json = $this->encode_result($result);
@@ -33,7 +33,7 @@ class UserController extends \App\Controllers\Controller
     public function show(Request $request, Response $response, array $args)
     {
         $id = $args['id'];
-        $query = "SELECT * FROM Utenti WHERE IdUtente = UUID_TO_BIN('$id')";
+        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo FROM Utenti WHERE IdUtente = UUID_TO_BIN('$id') ";
         $result = $this->db->query($query);
 
         $json = $this->encode_result($result);

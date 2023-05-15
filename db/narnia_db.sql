@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS Prenotazioni (
   DataPrenotazione DATETIME NOT NULL,
   Utente BINARY(16) NOT NULL,
   Evento BINARY(16) NOT NULL,
+  Validata TINYINT DEFAULT FALSE,
   PRIMARY KEY (IdPrenotazione),
   FOREIGN KEY (Utente) REFERENCES Utenti (IdUtente),
   FOREIGN KEY (Evento) REFERENCES Eventi (IdEvento)
