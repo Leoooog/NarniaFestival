@@ -9,6 +9,8 @@ require __DIR__ . '/../app/container_initializer.php';
 
 $app = AppFactory::createFromContainer($container);
 
+$app->setBasePath('/api');
+
 $app->add(function ($request, $handler) {
     $contentType = $request->getHeaderLine('Content-Type');
     if (strpos($contentType, 'application/json') !== false) {
