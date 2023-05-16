@@ -1,6 +1,9 @@
 <?php 
 
 namespace App\Controllers;
+
+require __DIR__.'/errors.php';
+
 class Controller {
     public function encode_result($result) {
         $rows = array();
@@ -17,5 +20,9 @@ class Controller {
         // Converte l'array in formato JSON
         $json = json_encode($rows);
         return $json;
+    }
+    
+    public function error(Error $error, $message) {
+        return json_encode(['code'=> $error->value, 'message' => 'Username in uso']);
     }
 }

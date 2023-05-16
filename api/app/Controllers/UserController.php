@@ -65,10 +65,17 @@ class UserController extends \App\Controllers\Controller
                 ->withStatus(403)
                 ->withHeader('Content-Type', 'application/json');
         }
-
+        $username = $data['Username'];
+        $query = "SELECT EXISTS (SELECT IdUtente FROM Utenti WHERE Username = '$username')";
+        $result = $this->db->query($query);
+        if ($result->fetch_all()[0][0] == 1) {
+            $response->getBody()->write(json_encode(['message' => 'Username in uso']));
+            return $response
+                ->withStatus(403)
+                ->withHeader('Content-Type', 'application/json');
+        }
         $nome = $data['Nome'];
         $cognome = $data['Cognome'];
-        $username = $data['Username'];
         $password_hash = $data['PasswordHash'];
 
         $codice = 0;
