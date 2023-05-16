@@ -13,7 +13,7 @@ INSERT INTO Ruoli VALUES
 (1, 'admin'),
 (2, 'iscritto'),
 (3, 'ospite'),
-(4, 'partner');
+(4, 'ristorante');
 
 CREATE TABLE IF NOT EXISTS Utenti (
 IdUtente BINARY(16) NOT NULL DEFAULT (UUID_TO_BIN(UUID())),
@@ -58,7 +58,7 @@ Descrizione VARCHAR(1024) NOT NULL,
 Durata TIME NOT NULL,
 Data DATETIME NOT NULL,
 Luogo VARCHAR(500) NOT NULL,
-Posizione POINT,
+Posizione GEOMETRY SRID 4326,
 Tipo INT NOT NULL,
 Prezzo FLOAT(5,2) NOT NULL DEFAULT 0,
 ConPrenotazione TINYINT NOT NULL DEFAULT FALSE,
@@ -73,7 +73,7 @@ IdStruttura BINARY(16) NOT NULL DEFAULT (UUID_TO_BIN(UUID())),
 Nome VARCHAR(50) NOT NULL,
 Descrizione VARCHAR(1024) NOT NULL,
 Indirizzo VARCHAR(100) NOT NULL,
-Posizione POINT,
+Posizione GEOMETRY SRID 4326,
 UrlMenu TEXT NOT NULL,
 Proprietario BINARY(16) NOT NULL,
 PRIMARY KEY (IdStruttura),
@@ -91,9 +91,9 @@ PRIMARY KEY(Id)
 DELETE FROM TipiBuono;
 
 INSERT INTO TipiBuono VALUES
-(1, 7, 'Basic', '1 primo o secondo, acqua a volontà, 1 caffè'),
-(2, 10, 'Premium', '1 primo o secondo, acqua a volontà, 1 caffè, 1 dolce'),
-(3, 15, 'Executive', '1 primo, 1 secondo, acqua a volontà, 1 caffè, 1 dolce');
+(1, 7, 'Basic', '1 primo o secondo, acqua a volonta, 1 caffe'),
+(2, 10, 'Premium', '1 primo o secondo, acqua a volonta, 1 caffe, 1 dolce'),
+(3, 15, 'Executive', '1 primo, 1 secondo, acqua a volonta, 1 caffe, 1 dolce');
 
 CREATE TABLE IF NOT EXISTS BuoniPasto (
 IdBuono BINARY(16) NOT NULL DEFAULT (UUID_TO_BIN(UUID())),
