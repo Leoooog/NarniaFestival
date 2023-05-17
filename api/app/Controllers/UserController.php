@@ -5,12 +5,9 @@ namespace App\Controllers;
 use App\Controllers\Controller;
 use App\Errors\Err;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use \mysqli;
 
-require __DIR__ . '/Controller.php';
 class UserController extends Controller
 {
 
@@ -206,10 +203,10 @@ class UserController extends Controller
             'sub' =>  "$userid",
             'iat' => time(),
             'exp' => time() + 3600,
-            'role' => "$ruolo" // Ruolo dell'utente
+            'role' => "$ruolo"
         ];
         
-        $token = JWT::encode($payload, $this->key->getKeyMaterial(), $this->key->getAlgorithm());
+        $token = JWT::encode($payload, $_ENV['SECRET_KEY'], 'HS256');
         $response->getBody()->write($token);
         return $response->withStatus(200)->withHeader('Content-Type', 'application/text');
     }

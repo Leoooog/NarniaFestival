@@ -8,12 +8,6 @@ use App\Controllers\Controller;
 
 class EventoController extends Controller
 {
-    protected $db;
-
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
 
     public function index(Request $request, Response $response, $args)
     {

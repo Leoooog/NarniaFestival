@@ -1,6 +1,8 @@
 <?php
-namespace App;
-use App\Errors\Err;
+namespace App\Jwt;
+
+
+use App\Errors\Err as Errore;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Slim\Psr7\Response as Response;
@@ -15,36 +17,37 @@ class JwtMiddleware
     public function __construct($allowedRoles)
     {
         $this->allowedRoles = $allowedRoles;
-        $this->secretkey = new Key("42f6974fd06f2d41bb4e135f5ca3cce2e7543c7925047c523275239f6a6c2737d751c6b09185d80062b8f3768e2f8e94fd84a15ce29ddad50bfe1af59ecb8f39", 'HS256');
+        $this->secretkey = new Key($_ENV['SECRET_KEY'], 'HS256');
     }
     public function __invoke(Request $request, RequestHandler $handler)
     {
         $token = str_replace("Bearer ", "", $request->getHeaderLine("Authorization"));
 
         try {
-            // Decodifica e verifica il token JWT utilizzando la chiave segreta
+            global $container;
             $decodedToken = JWT::decode($token, $this->secretkey);
-if(!JWTInvalidator::isValid($token)) {
-$response = new Response();
-            $response->getBody()->write(Err::TOKEN_NOT_VALID());
-            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-}
-            // Aggiungi il token decodificato alla richiesta
+            if (!$container->get('JWTInvalidator')->isValid($token)) {
+                $response = new Response();
+                $response->getBody()->write(Errore::TOKEN_NOT_VALID());
+                echo "a";
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+            
+            $request = $request->withAttribute('encoded_token', $token);
             $request = $request->withAttribute('token', $decodedToken);
 
             $role = $decodedToken->role;
             if (!in_array($role, $this->allowedRoles)) {
                 $response = new Response();
-                $response->getBody()->write(Err::NOT_AUTHORIZED());
+                $response->getBody()->write(Errore::NOT_AUTHORIZED());
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
         } catch (\Exception $e) {
             $response = new Response();
-            $response->getBody()->write(Err::TOKEN_NOT_VALID());
+            $response->getBody()->write(Errore::TOKEN_NOT_VALID());
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
 
-        // Token valido, procedi con la richiesta
         return $handler->handle($request);
     }
 }

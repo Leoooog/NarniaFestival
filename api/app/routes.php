@@ -1,6 +1,6 @@
 <?php
-use App\JwtMiddleware;
-include_once __DIR__.'/JwtMiddleware.php';
+use App\Jwt\JwtMiddleware;
+
 $app->get('/utenti', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('UserController');
@@ -41,5 +41,11 @@ $app->post('/login', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('UserController');
     return $controller->login($request, $response, $args);
-})
+});
+
+$app->post('/signout', function ($request, $response, $args) {
+    global $container;
+    $invalidator = $container->get('JWTInvalidator');
+    return $invalidator->invalidate($request, $response, $args);
+})->add(new JwtMiddleware(['iscritto', 'ospite', 'ristorante', 'admin']));
 ?>

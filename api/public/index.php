@@ -1,9 +1,11 @@
 <?php
 
-use DI\Container;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/..');
+$dotenv->load();
 
 require __DIR__ . '/../app/container_initializer.php';
 
