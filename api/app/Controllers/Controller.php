@@ -1,11 +1,29 @@
-<?php 
+<?php
 
 namespace App\Controllers;
 
-require __DIR__.'/errors.php';
+use Firebase\JWT\Key;
+use mysqli;
+class Controller
+{
+    protected $key;
+    protected $db;
+    protected $ruoli;
+    public function __construct(mysqli $db)
+    {
+        $this->db = $db;
+        $this->key = new Key("42f6974fd06f2d41bb4e135f5ca3cce2e7543c7925047c523275239f6a6c2737d751c6b09185d80062b8f3768e2f8e94fd84a15ce29ddad50bfe1af59ecb8f39", 'HS256');
+        $this->ruoli = [
+            1 => 'admin',
+            2 => 'iscritto',
+            3 => 'ospite',
+            4 => 'ristorante'
+        ];
+    }
 
-class Controller {
-    public function encode_result($result) {
+
+    public function encode_result($result)
+    {
         $rows = array();
 
         // Ottiene ogni riga come un array associativo
@@ -16,13 +34,15 @@ class Controller {
             }
             $rows[] = $row;
         }
-        if(count($rows) == 0) return FALSE;
+        if (count($rows) == 0)
+            return FALSE;
+        if (count($rows) == 1) {
+            return json_encode($rows[0]);
+        }
         // Converte l'array in formato JSON
         $json = json_encode($rows);
         return $json;
     }
-    
-    public function error(Error $error, $message) {
-        return json_encode(['code'=> $error->value, 'message' => 'Username in uso']);
-    }
+
+
 }

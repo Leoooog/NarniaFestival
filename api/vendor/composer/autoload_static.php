@@ -26,9 +26,11 @@ class ComposerStaticInitb514be8304848a74db48b4730353bd85
             'Psr\\Http\\Server\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
+            'Psr\\Clock\\' => 10,
         ),
         'L' => 
         array (
+            'Lcobucci\\JWT\\' => 13,
             'Laravel\\SerializableClosure\\' => 28,
         ),
         'I' => 
@@ -37,6 +39,7 @@ class ComposerStaticInitb514be8304848a74db48b4730353bd85
         ),
         'F' => 
         array (
+            'Firebase\\JWT\\' => 13,
             'Fig\\Http\\Message\\' => 17,
             'FastRoute\\' => 10,
         ),
@@ -44,6 +47,10 @@ class ComposerStaticInitb514be8304848a74db48b4730353bd85
         array (
             'DI\\Bridge\\Slim\\' => 15,
             'DI\\' => 3,
+        ),
+        'A' => 
+        array (
+            'App\\' => 4,
         ),
     );
 
@@ -78,6 +85,14 @@ class ComposerStaticInitb514be8304848a74db48b4730353bd85
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
+        'Psr\\Clock\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/clock/src',
+        ),
+        'Lcobucci\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/lcobucci/jwt/src',
+        ),
         'Laravel\\SerializableClosure\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/serializable-closure/src',
@@ -85,6 +100,10 @@ class ComposerStaticInitb514be8304848a74db48b4730353bd85
         'Invoker\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-di/invoker/src',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
         'Fig\\Http\\Message\\' => 
         array (
@@ -101,6 +120,10 @@ class ComposerStaticInitb514be8304848a74db48b4730353bd85
         'DI\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-di/php-di/src',
+        ),
+        'App\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/app',
         ),
     );
 

@@ -25,17 +25,12 @@ Email VARCHAR(320) NOT NULL UNIQUE,
 CodiceVerifica INT(6) NOT NULL,
 Verificato TINYINT NOT NULL DEFAULT FALSE,
 Ruolo INT NOT NULL DEFAULT 3,
+DataCreazione DATETIME NOT NULL DEFAULT NOW(),
+DataVerifica DATETIME NOT NULL DEFAULT NOW(),
 PRIMARY KEY (IdUtente),
 FOREIGN KEY (Ruolo) REFERENCES Ruoli(Id)
 ) ENGINE=InnoDB;
 
-INSERT INTO Utenti (Nome, Cognome, Username, PasswordHash, Email, CodiceVerifica, Verificato, Ruolo)
-VALUES
-('Mario', 'Rossi', 'mrossi', 'password123', 'mario.rossi@example.com', '123456', 1, 1),
-('Luigi', 'Verdi', 'lverdi', 'password456', 'luigi.verdi@example.com', '234567', 0, 2),
-('Giovanni', 'Bianchi', 'gbianchi', 'password789', 'giovanni.bianchi@example.com', '345678', 0, 2),
-('Paola', 'Neri', 'pneri', 'passwordabc', 'paola.neri@example.com', '456789', 1, 3),
-('Sara', 'Russo', 'srusso', 'passworddef', 'sara.russo@example.com', '567890', 1, 4);
 
 CREATE TABLE IF NOT EXISTS TipiEventi (
 Id INT NOT NULL,
