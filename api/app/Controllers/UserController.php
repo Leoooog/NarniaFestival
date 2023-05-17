@@ -138,6 +138,11 @@ class UserController extends Controller
             return $response->withStatus(500);
         }
 
+        if(mysqli_affected_rows($this->db) == 0) {
+            $response->getBody()->write(Err::USER_NOT_FOUND());
+            return $response->withStatus(404);
+        }
+
         $query = "SELECT * FROM Utenti WHERE IdUtente = UUID_TO_BIN('$id')";
         $result = $this->db->query($query);
         $user = $result->fetch_assoc();
