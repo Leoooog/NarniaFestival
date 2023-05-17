@@ -24,6 +24,11 @@ class JwtMiddleware
         try {
             // Decodifica e verifica il token JWT utilizzando la chiave segreta
             $decodedToken = JWT::decode($token, $this->secretkey);
+if(!JWTInvalidator::isValid($token)) {
+$response = new Response();
+            $response->getBody()->write(Err::TOKEN_NOT_VALID());
+            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+}
             // Aggiungi il token decodificato alla richiesta
             $request = $request->withAttribute('token', $decodedToken);
 
