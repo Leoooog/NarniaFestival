@@ -63,15 +63,15 @@ PRIMARY KEY (IdEvento),
 FOREIGN KEY (Tipo) REFERENCES TipiEventi(Id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS Strutture (
-IdStruttura BINARY(16) NOT NULL DEFAULT (UUID_TO_BIN(UUID())),
+CREATE TABLE IF NOT EXISTS Ristoranti (
+IdRistorante BINARY(16) NOT NULL DEFAULT (UUID_TO_BIN(UUID())),
 Nome VARCHAR(50) NOT NULL,
 Descrizione VARCHAR(1024) NOT NULL,
 Indirizzo VARCHAR(100) NOT NULL,
 Posizione GEOMETRY SRID 4326,
 UrlMenu TEXT NOT NULL,
 Proprietario BINARY(16) NOT NULL,
-PRIMARY KEY (IdStruttura),
+PRIMARY KEY (IdRistorante),
 FOREIGN KEY (Proprietario) REFERENCES Utenti(IdUtente)
 ) ENGINE=InnoDB;
 
@@ -101,9 +101,9 @@ FOREIGN KEY (Utente) REFERENCES Utenti (IdUtente)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS BuoniPastoAccettati (
-Struttura BINARY(16) NOT NULL,
+Ristorante BINARY(16) NOT NULL,
 TipoBuono INT NOT NULL,
-PRIMARY KEY (Struttura, TipoBuono)
+PRIMARY KEY (Ristorante, TipoBuono)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS Prenotazioni (

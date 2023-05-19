@@ -2,7 +2,7 @@
 use App\Controllers\BuonoController;
 use App\Controllers\EventoController;
 use App\Controllers\PrenotazioneController;
-use App\Controllers\StrutturaController;
+use App\Controllers\RistoranteController;
 use DI\Container;
 use App\Controllers\UserController;
 use App\Jwt\JwtInvalidator;
@@ -45,9 +45,9 @@ $container->set('PrenotazioneController', function ($container) {
     return new PrenotazioneController($mysqli);
 });
 
-$container->set('StrutturaController', function ($container) {
+$container->set('RistoranteController', function ($container) {
     $mysqli = $container->get('db');
-    return new StrutturaController($mysqli);
+    return new RistoranteController($mysqli);
 });
 
 
