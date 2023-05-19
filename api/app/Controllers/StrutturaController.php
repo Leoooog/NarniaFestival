@@ -5,7 +5,7 @@ use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 use App\Controllers\Controller;
 
-class StrutturaController extends Controller
+class RistoranteController extends Controller
 {
 
     public function index(Request $request, Response $response, $args)
