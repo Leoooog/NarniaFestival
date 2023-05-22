@@ -17,7 +17,6 @@ class UserController extends Controller {
         $stmt->execute();
 
         $result = $stmt->get_result();
-        $result = $result->fetch_array(MYSQLI_ASSOC);
         $json = $this->encode_result($result);
 
         $response->getBody()->write($json);
@@ -52,7 +51,6 @@ class UserController extends Controller {
         $stmt->execute([$id]);
 
         $result = $stmt->get_result();
-        $result = $result->fetch_array(MYSQLI_ASSOC);
         $json = $this->encode_result($result);
 
         if (!$json) {
@@ -125,7 +123,6 @@ class UserController extends Controller {
         $stmt->execute([$email]);
 
         $result = $stmt->get_result();
-        $result = $result->fetch_array(MYSQLI_ASSOC);
         $json = $this->encode_result($result);
 
         $response->getBody()->write($json);
