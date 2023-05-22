@@ -214,7 +214,7 @@ class UserController extends Controller {
             $response->getBody()->write(Err::LOGIN_FAILED());
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
-        $row = $stmt->fetch(MYSQLI_ASSOC);
+        $row = $result->fetch_assoc();
         $userid = $row['IdUtente'];
         $ruolo = $this->ruoli[$row['Ruolo']];
         $payload = [

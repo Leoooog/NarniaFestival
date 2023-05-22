@@ -12,6 +12,8 @@ class JwtInvalidator extends Controller
         $token = $request->getAttribute("encoded_token");
         $query = "INSERT INTO InvalidJWT VALUES ('$token')";
         $this->db->query($query);
+        
+        return $response->withStatus(200);
     }
 
     public function isValid($token) {

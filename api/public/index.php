@@ -29,13 +29,17 @@ $customErrorHandler = function (
     bool $logErrorDetails,
     ?LoggerInterface $logger = null
 ) {
+    $response = new Response();
     if($exception instanceof HttpNotFoundException) {
-        $response = new Response();
+        
         $response->getBody()->write(Err::ERROR("Risorsa non trovata"));
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(404);
     }
+    $response->getBody()->write(Err::ERROR($exception->getMessage()));
+    return $response->withHeader('Content-Type', 'application/json')
+    ->withStatus(500);
 };
 
 

@@ -29,7 +29,6 @@ class JwtMiddleware
             if (!$container->get('JWTInvalidator')->isValid($token)) {
                 $response = new Response();
                 $response->getBody()->write(Errore::TOKEN_NOT_VALID());
-                echo "a";
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
             
