@@ -1,6 +1,11 @@
 <?php
 
+use App\Errors\Err;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
+use Slim\Psr7\Response;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -12,6 +17,30 @@ require __DIR__ . '/../app/container_initializer.php';
 $app = AppFactory::createFromContainer($container);
 
 $app->setBasePath('/api');
+
+$app->addRoutingMiddleware();
+
+
+$customErrorHandler = function (
+    ServerRequestInterface $request,
+    Throwable $exception,
+    bool $displayErrorDetails,
+    bool $logErrors,
+    bool $logErrorDetails,
+    ?LoggerInterface $logger = null
+) {
+    if($exception instanceof HttpNotFoundException) {
+        $response = new Response();
+        $response->getBody()->write(Err::ERROR("Risorsa non trovata"));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(404);
+    }
+};
+
+
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware->setDefaultErrorHandler($customErrorHandler);
 
 $app->add(function ($request, $handler) {
     // JSON ACCEPT
