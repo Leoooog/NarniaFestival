@@ -150,7 +150,7 @@ class UserController extends Controller {
             return $response->withStatus(500);
         }
 
-        if ($result->num_rows == 0) {
+        if ($result === false) {
             $response->getBody()->write(Err::USER_NOT_FOUND());
             return $response->withStatus(404);
         }
@@ -173,11 +173,10 @@ class UserController extends Controller {
         $data = $request->getParsedBody();
         $code = $data['Codice'];
 
-        $query = "UPDATE Utenti SET Verificato = TRUE WHERE Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, NOW(), DataVerifica) < 30";
+        $query = "UPDATE Utenti SET Verificato = TRUE WHERE Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 8";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$code]);
-        $result = $stmt->get_result();
-        if ($result->num_rows != 1) {
+        if ($stmt->affected_rows == 0) {
             $response->getBody()->write(Err::WRONG_VERIFY_CODE());
             return $response->withStatus(403)
                 ->withHeader('Content-Type', 'application/json');
@@ -206,15 +205,19 @@ class UserController extends Controller {
         $username = $data['Username'];
         $password = $data['Password'];
 
-        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Ruolo FROM Utenti WHERE (Username = ? AND PasswordHash = ?) OR (Email = ? AND PasswordHash = ?)";
+        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Ruolo, Verificato FROM Utenti WHERE (Username = ? AND PasswordHash = ?) OR (Email = ? AND PasswordHash = ?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$username, $password, $username, $password]);
         $result = $stmt->get_result();
-        if ($result->num_rows == 0) {
+        if ($result === false) {
             $response->getBody()->write(Err::LOGIN_FAILED());
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
         $row = $result->fetch_assoc();
+		if(!$row['Verificato']) {
+			$response->getBody()->write(Err::NOT_VERIFIED());
+			return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+		}
         $userid = $row['IdUtente'];
         $ruolo = $this->ruoli[$row['Ruolo']];
         $payload = [
