@@ -66,6 +66,30 @@ class UserController extends Controller {
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
     }
+	
+    public function me(Request $request, Response $response, array $arg) {
+	    $token = $request->getAttribute("token");
+	    $userid = $token->sub;
+	    $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo, DataCreazione FROM Utenti WHERE IdUtente = UUID_TO_BIN(?)";
+	     $stmt = $this->db->prepare($query);
+        $stmt->execute([$userid]);
+
+        $result = $stmt->get_result();
+        $json = $this->encode_result($result);
+
+        if (!$json) {
+            $response->getBody()->write(Err::USER_NOT_FOUND());
+            return $response
+                ->withStatus(404)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        $response->getBody()->write($json);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
 
     public function create(Request $request, Response $response, array $args) {
         $data = $request->getParsedBody();
