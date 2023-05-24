@@ -9,12 +9,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class BuonoController extends Controller {
     public function index(Request $request, Response $response, array $args) {
-        $query = "SELECT IdBuono, Valido, Tipo, Utente FROM BuoniPasto";
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
+        if(!$json) {
+            $json = [];
+        }
 
         $response->getBody()->write($json);
         return $response
@@ -24,14 +27,18 @@ class BuonoController extends Controller {
 
     public function show(Request $request, Response $response, array $args) {
         $id = $args['id'];
-
-        $query = "SELECT IdBuono, Valido, Tipo, Utente FROM BuoniPasto WHERE IdBuono = ?";
+        if (!preg_match("/^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i", $id)) {
+            $response->getBody()->write(Err::MALFORMED_UUID());
+            return $response
+                ->withStatus(403)
+                ->withHeader('Content-Type', 'application/json');
+        }
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE IdBuono = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
-        $result = $stmt->fetch(MYSQLI_ASSOC);
-
-        if (!$result) {
+        $result = $stmt->get_result();
+        if ($result->num_rows == 0) {
             $response->getBody()->write(Err::BUONO_NOT_FOUND());
             return $response
                 ->withStatus(404)
@@ -51,8 +58,13 @@ class BuonoController extends Controller {
         $data = $request->getParsedBody();
         $tipo = $data['Tipo'];
         $utente = $data['Utente'];
-
-        $query = "INSERT INTO BuoniPasto (Tipo, Utente) VALUES (?, ?)";
+        if (!preg_match("/^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i", $utente)) {
+            $response->getBody()->write(Err::MALFORMED_UUID());
+            return $response
+                ->withStatus(403)
+                ->withHeader('Content-Type', 'application/json');
+        }
+        $query = "INSERT INTO BuoniPasto (Tipo, Utente) VALUES (?, UUID_TO_BIN(?))";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$tipo, $utente]);
 
@@ -61,7 +73,7 @@ class BuonoController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT IdBuono, Valido, Tipo, Utente FROM BuoniPasto WHERE IdBuono = @last_uuid";
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE IdBuono = @last_uuid";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -82,7 +94,7 @@ class BuonoController extends Controller {
         $tipo = $data['Tipo'];
         $utente = $data['Utente'];
 
-        $query = "UPDATE BuoniPasto SET Valido = ?, Tipo = ?, Utente = ? WHERE IdBuono = ?";
+        $query = "UPDATE BuoniPasto SET Valido = ?, Tipo = ?, Utente = UUID_TO_BIN(?) WHERE IdBuono = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$valido, $tipo, $utente, $id]);
 

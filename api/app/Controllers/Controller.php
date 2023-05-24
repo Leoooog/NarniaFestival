@@ -35,10 +35,11 @@ class Controller
             }
             $rows[] = $row;
         }
-        if (count($rows) == 0)
-            return FALSE;
         if (count($rows) == 1) {
             return json_encode($rows[0]);
+        }
+        if (count($rows) == 0) {
+            return FALSE;
         }
         // Converte l'array in formato JSON
         $json = json_encode($rows);
