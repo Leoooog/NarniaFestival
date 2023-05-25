@@ -159,6 +159,12 @@ $app->post('/buoni_pasto', function ($request, $response, $args) {
     return $controller->create($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
 
+$app->delete('/buoni_pasto/{id}', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('BuonoController');
+    return $controller->delete($request, $response, $args);
+})->add(new JwtMiddleware(['admin']));
+
 $app->post('/buoni_pasto/{id}/brucia', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('BuonoController');

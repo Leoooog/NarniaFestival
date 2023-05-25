@@ -58,6 +58,18 @@ class Err {
 	public static function NOT_VERIFIED($message = "L'utente non è verificato") {
         return json_encode(new Err(1017, $message));
     }
+    public static function EVENTO_DELETE_ERROR($message = "Errore nell'eliminazione dell'evento") {
+        return json_encode(new Err(1018, $message));
+    }
+    public static function EVENTO_UPDATE_ERROR($message = "Errore nell'aggiornamento dell'evento") {
+        return json_encode(new Err(1019, $message));
+    }
+    public static function EVENTO_NOT_FOUND($message = "Buono pasto non trovato") {
+        return json_encode(new Err(1020, $message));
+    }
+    public static function EVENTO_CREATION_ERROR($message = "Errore nella creazione dell'evento") {
+        return json_encode(new Err(1021, $message));
+    }
 
     public $Codice;
     public $Messaggio;

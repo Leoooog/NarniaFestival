@@ -12,7 +12,7 @@ class UserController extends Controller {
 
     public function index(Request $request, Response $response, array $args) {
 
-        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo FROM Utenti";
+        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo, DataCreazione FROM Utenti";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -218,7 +218,12 @@ class UserController extends Controller {
 
         if (!$stmt) {
             $response->getBody()->write(Err::USER_DELETE_ERROR());
-            return $response->withStatus(500);
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+
+        if($stmt->affected_rows == 0) {
+            $response->getBody()->write(Err::USER_NOT_FOUND());
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
 
         return $response->withStatus(204);

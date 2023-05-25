@@ -16,7 +16,7 @@ class BuonoController extends Controller {
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
         if(!$json) {
-            $json = [];
+            $json = "[]";
         }
 
         $response->getBody()->write($json);
@@ -126,20 +126,26 @@ class BuonoController extends Controller {
 
         if (!$stmt) {
             $response->getBody()->write(Err::BUONO_DELETE_ERROR());
-            return $response->withStatus(500);
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
-
+        if($stmt->affected_rows == 0) {
+            $response->getBody()->write(Err::BUONO_NOT_FOUND());
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
         return $response->withStatus(204);
     }
     public function showByUser(Request $request, Response $response, array $args) {
         $userId = $args['id'];
 
-        $query = "SELECT IdBuono, Valido, Tipo, Utente FROM BuoniPasto WHERE Utente = ?";
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE Utente = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$userId]);
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
+        if(!$json) {
+            $json = "[]";
+        }
 
         $response->getBody()->write($json);
 
@@ -156,7 +162,7 @@ class BuonoController extends Controller {
         $stmt->execute([$buonoId]);
         $result = $stmt->get_result();
 
-        if ($result === 0) {
+        if ($stmt->affected_rows == 0) {
             return $response
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(404)
