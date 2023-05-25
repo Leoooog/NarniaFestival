@@ -27,9 +27,8 @@ class Controller
     {
         $rows = array();
 
-        // Ottiene ogni riga come un array associativo
         while ($row = $result->fetch_assoc()) {
-            // Converte ogni campo in UTF-8 utilizzando iconv()
+            
             foreach ($row as $key => $value) {
                 $row[$key] = iconv('latin1', 'utf-8', $value);
             }
