@@ -5,13 +5,11 @@ namespace App\Controllers;
 use Firebase\JWT\Key;
 use mysqli;
 
-class Controller
-{
+class Controller {
     protected $key;
     protected $db;
     protected $ruoli;
-    public function __construct(mysqli $db)
-    {
+    public function __construct(mysqli $db) {
         $this->db = $db;
         $this->key = new Key($_ENV['SECRET_KEY'], 'HS256');
         $this->ruoli = [
@@ -23,12 +21,11 @@ class Controller
     }
 
 
-    public function encode_result($result)
-    {
+    public function encode_result($result) {
         $rows = array();
 
         while ($row = $result->fetch_assoc()) {
-            
+
             foreach ($row as $key => $value) {
                 $row[$key] = iconv('latin1', 'utf-8', $value);
             }
@@ -44,6 +41,4 @@ class Controller
         $json = json_encode($rows);
         return $json;
     }
-
-
 }

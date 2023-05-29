@@ -10,6 +10,8 @@ $app->get('/utenti', function ($request, $response, $args) {
     return $controller->index($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
 
+//todo: send new verification code
+
 $app->get('/utenti/me', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('UserController');
@@ -106,6 +108,12 @@ $app->get('/prenotazioni/{id}', function ($request, $response, $args) {
     return $controller->show($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
 
+$app->delete('/prenotazioni/{id}', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('PrenotazioneController');
+    return $controller->delete($request, $response, $args);
+})->add(new JwtMiddleware(['admin', 'iscritto', 'ospite', 'ristorante']));
+
 // ---------------------- RISTORANTI ----------------------
 
 $app->get('/ristoranti', function ($request, $response, $args) {
@@ -146,6 +154,12 @@ $app->get('/utenti/{id}/buoni_pasto', function ($request, $response, $args) {
     $controller = $container->get('BuonoController');
     return $controller->showByUser($request, $response, $args);
 })->add(new JwtMiddleware(['iscritto', 'ospite', 'ristorante', 'admin']));
+
+$app->get('/ristoranti/{id}/buoni_pasto', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('BuonoController');
+    return $controller->showByRistorante($request, $response, $args);
+})->add(new JwtMiddleware(['ristorante', 'admin']));
 
 $app->get('/buoni_pasto/{id}', function ($request, $response, $args) {
     global $container;

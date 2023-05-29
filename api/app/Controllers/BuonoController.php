@@ -15,7 +15,7 @@ class BuonoController extends Controller {
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
-        if(!$json) {
+        if (!$json) {
             $json = "[]";
         }
 
@@ -73,7 +73,7 @@ class BuonoController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE IdBuono = @last_uuid";
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE IdBuono = @last_buonopasto_uuid";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -128,22 +128,62 @@ class BuonoController extends Controller {
             $response->getBody()->write(Err::BUONO_DELETE_ERROR());
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
-        if($stmt->affected_rows == 0) {
+        if ($stmt->affected_rows == 0) {
             $response->getBody()->write(Err::BUONO_NOT_FOUND());
             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
         return $response->withStatus(204);
     }
     public function showByUser(Request $request, Response $response, array $args) {
-        $userId = $args['id'];
+        $id = $args['id'];
+        $token = $request->getAttribute("token");
+        $userid = $token->sub;
+        $role = $token->role;
 
-        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE Utente = UUID_TO_BIN(?)";
+        if($userid != $id && $role != "admin") {
+            $response->getBody()->write(Err::NOT_AUTHORIZED());
+            return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(401);
+        }
+
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente, BIN_TO_UUID(Ristorante) AS Ristorante FROM BuoniPasto WHERE Utente = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$userId]);
+        $stmt->execute([$id]);
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
-        if(!$json) {
+        if (!$json) {
+            $json = "[]";
+        }
+
+        $response->getBody()->write($json);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
+
+    public function showByRistorante(Request $request, Response $response, array $args) {
+        $id = $args['id'];
+        $token = $request->getAttribute("token");
+        $userid = $token->sub;
+        $role = $token->role;
+
+        if($userid != $id && $role != "admin") {
+            $response->getBody()->write(Err::NOT_AUTHORIZED());
+            return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(401);
+        }
+
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Tipo, BIN_TO_UUID(Utente) AS Utente, BIN_TO_UUID(Ristorante) AS Ristorante FROM BuoniPasto WHERE Ristorante = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+
+        $result = $stmt->get_result();
+        $json = $this->encode_result($result);
+        if (!$json) {
             $json = "[]";
         }
 
@@ -155,12 +195,17 @@ class BuonoController extends Controller {
     }
 
     public function burn(Request $request, Response $response, array $args) {
-        $buonoId = $args['id'];
+        $buonoid = $args['id'];
 
-        $query = "UPDATE BuoniPasto SET Valido = 0 WHERE IdBuono = ?";
+        $token = $request->getAttribute("token");
+        $ristoranteid = $token->sub;
+        if($token->role == "admin") {
+            $ristoranteid = NULL;
+        }
+
+        $query = "UPDATE BuoniPasto SET Valido = 0, Ristorante = ? WHERE IdBuono = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$buonoId]);
-        $result = $stmt->get_result();
+        $stmt->execute([$ristoranteid, $buonoid]);
 
         if ($stmt->affected_rows == 0) {
             return $response

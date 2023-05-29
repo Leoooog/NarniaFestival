@@ -68,18 +68,23 @@ class EventoController extends Controller {
         $prezzo = $data['Prezzo'];
         $conprenotazione = $data['ConPrenotazione'];
         $capienza = $data['Capienza'];
+        $postioccupati = $capienza;
         $query = "INSERT INTO Eventi (Titolo, Sottotitolo, Descrizione, Durata, Data,
-        Luogo, Posizione,Tipo, Prezzo, ConPrenotazione, Capienza)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati)
+        VALUES(?, ?, ?, ?, ?, ?, POINT(?, ?), ?, ?, ?, ?, ?)";
+        if (!$capienza) {
+            $capienza = NULL;
+            $postioccupati = NULL;
+        }
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$titolo, $sottotitolo, $descrizione, $durata, $dataEvento, $luogo, $posizione, $tipo, $prezzo, $conprenotazione, $capienza]);
+        $stmt->execute([$titolo, $sottotitolo, $descrizione, $durata, $dataEvento, $luogo, $posizione['lat'], $posizione['long'], $tipo, $prezzo, $conprenotazione, $capienza, $postioccupati]);
 
         if (!$stmt) {
             $response->getBody()->write(Err::BUONO_CREATION_ERROR());
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente FROM BuoniPasto WHERE IdBuono = @last_uuid";
+        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi WHERE IdEvento = @last_evento_uuid";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -94,59 +99,59 @@ class EventoController extends Controller {
     }
 
     public function update(Request $request, Response $response, array $args) {
-    $id = $args['id'];
-    $data = $request->getParsedBody();
-    $titolo = $data['Titolo'];
-    $sottotitolo = $data['Sottotitolo'];
-    $descrizione = $data['Descrizione'];
-    $durata = $data['Durata'];
-    $dataEvento = $data['Data'];
-    $luogo = $data['Luogo'];
-    $posizione = $data['Posizione'];
-    $tipo = $data['Tipo'];
-    $prezzo = $data['Prezzo'];
-    $conPrenotazione = $data['ConPrenotazione'];
-    $capienza = $data['Capienza'];
+        $id = $args['id'];
+        $data = $request->getParsedBody();
+        $titolo = $data['Titolo'];
+        $sottotitolo = $data['Sottotitolo'];
+        $descrizione = $data['Descrizione'];
+        $durata = $data['Durata'];
+        $dataEvento = $data['Data'];
+        $luogo = $data['Luogo'];
+        $posizione = $data['Posizione'];
+        $tipo = $data['Tipo'];
+        $prezzo = $data['Prezzo'];
+        $conprenotazione = $data['ConPrenotazione'];
+        $capienza = $data['Capienza'];
 
-    $query = "UPDATE Eventi SET Titolo = ?, Sottotitolo = ?, Descrizione = ?, Durata = ?, Data = ?, Luogo = ?, Posizione = ?, Tipo = ?, Prezzo = ?, ConPrenotazione = ?, Capienza = ? WHERE IdEvento = UUID_TO_BIN(?)";
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([$titolo, $sottotitolo, $descrizione, $durata, $dataEvento, $luogo, $posizione, $tipo, $prezzo, $conPrenotazione, $capienza, $id]);
+        $query = "UPDATE Eventi SET Titolo = ?, Sottotitolo = ?, Descrizione = ?, Durata = ?, Data = ?, Luogo = ?, Posizione = POINT(?, ?), Tipo = ?, Prezzo = ?, ConPrenotazione = ?, Capienza = ? WHERE IdEvento = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$titolo, $sottotitolo, $descrizione, $durata, $dataEvento, $luogo, $posizione['lat'], $posizione['long'], $tipo, $prezzo, $conprenotazione, $capienza, $id]);
 
-    if (!$stmt) {
-        $response->getBody()->write(Err::EVENTO_UPDATE_ERROR());
-        return $response->withStatus(500);
+        if (!$stmt) {
+            $response->getBody()->write(Err::EVENTO_UPDATE_ERROR());
+            return $response->withStatus(500);
+        }
+
+        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+
+        $result = $stmt->get_result();
+        $json = $this->encode_result($result);
+
+        $response->getBody()->write($json);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
     }
-
-    $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([$id]);
-
-    $result = $stmt->get_result();
-    $json = $this->encode_result($result);
-
-    $response->getBody()->write($json);
-
-    return $response
-        ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
-}
 
 
     public function delete(Request $request, Response $response, array $args) {
-    $id = $args['id'];
+        $id = $args['id'];
 
-    $query = "DELETE FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([$id]);
+        $query = "DELETE FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
 
-    if (!$stmt) {
-        $response->getBody()->write(Err::EVENTO_DELETE_ERROR());
-        return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        if (!$stmt) {
+            $response->getBody()->write(Err::EVENTO_DELETE_ERROR());
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+        if ($stmt->affected_rows == 0) {
+            $response->getBody()->write(Err::EVENTO_NOT_FOUND());
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+        return $response->withStatus(204);
     }
-    if ($stmt->affected_rows == 0) {
-        $response->getBody()->write(Err::EVENTO_NOT_FOUND());
-        return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-    }
-    return $response->withStatus(204);
-}
 }

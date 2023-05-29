@@ -64,11 +64,38 @@ class Err {
     public static function EVENTO_UPDATE_ERROR($message = "Errore nell'aggiornamento dell'evento") {
         return json_encode(new Err(1019, $message));
     }
-    public static function EVENTO_NOT_FOUND($message = "Buono pasto non trovato") {
+    public static function EVENTO_NOT_FOUND($message = "Evento non trovato") {
         return json_encode(new Err(1020, $message));
     }
     public static function EVENTO_CREATION_ERROR($message = "Errore nella creazione dell'evento") {
         return json_encode(new Err(1021, $message));
+    }
+    public static function PRENOTAZIONE_DELETE_ERROR($message = "Errore nell'eliminazione della prenotazione") {
+        return json_encode(new Err(1022, $message));
+    }
+    public static function PRENOTAZIONE_UPDATE_ERROR($message = "Errore nell'aggiornamento della prenotazione") {
+        return json_encode(new Err(1023, $message));
+    }
+    public static function PRENOTAZIONE_NOT_FOUND($message = "Prenotazione non trovata") {
+        return json_encode(new Err(1024, $message));
+    }
+    public static function PRENOTAZIONE_CREATION_ERROR($message = "Errore nella creazione della prenotazione") {
+        return json_encode(new Err(1025, $message));
+    }
+    public static function RISTORANTE_DELETE_ERROR($message = "Errore nell'eliminazione del ristorante") {
+        return json_encode(new Err(1026, $message));
+    }
+    public static function RISTORANTE_UPDATE_ERROR($message = "Errore nell'aggiornamento del ristorante") {
+        return json_encode(new Err(1027, $message));
+    }
+    public static function RISTORANTE_NOT_FOUND($message = "Ristorante non trovato") {
+        return json_encode(new Err(1028, $message));
+    }
+    public static function RISTORANTE_CREATION_ERROR($message = "Errore nella creazione del ristorante") {
+        return json_encode(new Err(1029, $message));
+    }
+    public static function UPLOAD_ERROR($message = "Errore nel caricamento del file") {
+        return json_encode(new Err(1030, $message));
     }
 
     public $Codice;
