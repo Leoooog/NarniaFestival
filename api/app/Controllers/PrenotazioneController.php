@@ -59,7 +59,7 @@ class PrenotazioneController extends Controller {
         $utente = $data['Utente'];
         $evento = $data['Evento'];
         $posti = $data['Posti'];
-
+        //todo: controllare e aggiornare posti occupati dell'evento
         $query = "INSERT INTO Prenotazioni (Utente, Evento, Posti)
         VALUES(UUID_TO_BIN(?), UUID_TO_BIN(?), ?)";
         $stmt = $this->db->prepare($query);

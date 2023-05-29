@@ -73,7 +73,7 @@ class RistoranteController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, Posizione, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = @last_ristorante_uuid";
+        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = @last_ristorante_uuid";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -106,7 +106,7 @@ class RistoranteController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, Posizione, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
+        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 

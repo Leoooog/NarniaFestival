@@ -297,7 +297,7 @@ class UserController extends Controller {
         $stmt = $this->db->prepare($query);
         $stmt->execute([$username, $password, $username, $password]);
         $result = $stmt->get_result();
-        if ($result === false) {
+        if ($result->num_rows == 0) {
             $response->getBody()->write(Err::LOGIN_FAILED());
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }

@@ -84,7 +84,7 @@ class EventoController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi WHERE IdEvento = @last_evento_uuid";
+        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi WHERE IdEvento = @last_evento_uuid";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -122,7 +122,7 @@ class EventoController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
+        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Tipo, Prezzo, ConPrenotazione, Capienza FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
