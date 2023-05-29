@@ -102,6 +102,12 @@ $app->get('/utenti/{id}/prenotazioni', function ($request, $response, $args) {
     return $controller->showByUser($request, $response, $args);
 })->add(new JwtMiddleware(['iscritto', 'ospite', 'ristorante', 'admin']));
 
+$app->post('/prenotazioni', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('PrenotazioneController');
+    return $controller->create($request, $response, $args);
+})->add(new JwtMiddleware(['iscritto', 'ospite', 'ristorante', 'admin']));
+
 $app->get('/prenotazioni/{id}', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('PrenotazioneController');
@@ -114,12 +120,24 @@ $app->delete('/prenotazioni/{id}', function ($request, $response, $args) {
     return $controller->delete($request, $response, $args);
 })->add(new JwtMiddleware(['admin', 'iscritto', 'ospite', 'ristorante']));
 
+$app->post('/prenotazioni/{id}/validate', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('PrenotazioneController');
+    return $controller->validate($request, $response, $args);
+})->add(new JwtMiddleware(['admin']));
+
 // ---------------------- RISTORANTI ----------------------
 
 $app->get('/ristoranti', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('RistoranteController');
     return $controller->index($request, $response, $args);
+});
+
+$app->get('/ristoranti/{id}', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('RistoranteController');
+    return $controller->show($request, $response, $args);
 });
 
 $app->post('/ristoranti', function ($request, $response, $args) {
@@ -132,7 +150,14 @@ $app->put('/ristoranti', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('RistoranteController');
     return $controller->update($request, $response, $args);
+})->add(new JwtMiddleware(['admin']));
+
+$app->put('/ristoranti/{id}/menu', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('RistoranteController');
+    return $controller->updateMenu($request, $response, $args);
 })->add(new JwtMiddleware(['admin', 'ristorante']));
+
 
 $app->delete('/ristoranti', function ($request, $response, $args) {
     global $container;
