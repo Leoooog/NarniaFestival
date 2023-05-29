@@ -103,7 +103,7 @@ class BuonoController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT IdBuono, Valido, Tipo, Utente FROM BuoniPasto WHERE IdBuono = ?";
+        $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, Utente FROM BuoniPasto WHERE IdBuono = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
@@ -120,7 +120,7 @@ class BuonoController extends Controller {
     public function delete(Request $request, Response $response, array $args) {
         $id = $args['id'];
 
-        $query = "DELETE FROM BuoniPasto WHERE IdBuono = ?";
+        $query = "DELETE FROM BuoniPasto WHERE IdBuono = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
