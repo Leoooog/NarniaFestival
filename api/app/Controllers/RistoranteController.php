@@ -10,7 +10,7 @@ use App\Controllers\Controller;
 class RistoranteController extends Controller {
 
     public function index(Request $request, Response $response, array $args) {
-        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, Posizione, Menu, Proprietario FROM Ristoranti";
+        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, BIN_TO_UUID(Proprietario) AS Proprietario FROM Ristoranti";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -34,7 +34,7 @@ class RistoranteController extends Controller {
                 ->withStatus(403)
                 ->withHeader('Content-Type', 'application/json');
         }
-        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, Posizione, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
+        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
@@ -72,10 +72,27 @@ class RistoranteController extends Controller {
             $response->getBody()->write(Err::RISTORANTE_CREATION_ERROR());
             return $response->withStatus(500);
         }
-
-        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = @last_ristorante_uuid";
+        $buoniPastoAccettati = $data['BuoniPastoAccettati'];
+        $query = "SELECT @last_ristorante_uuid AS Id";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
+
+        $ristoranteId = $stmt->get_result()->fetch_assoc()['Id'];
+
+        foreach ($buoniPastoAccettati as $tipoBuono) {
+            $query = "INSERT INTO BuoniPastoAccettati (Ristorante, TipoBuono)
+                VALUES (?, ?)";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$ristoranteId, $tipoBuono]);
+
+            if (!$stmt) {
+                $response->getBody()->write(Err::RISTORANTE_CREATION_ERROR());
+                return $response->withStatus(500);
+            }
+        }
+        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, BIN_TO_UUID(Proprietario) AS Proprietario FROM Ristoranti WHERE IdRistorante = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$ristoranteId]);
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
@@ -86,7 +103,37 @@ class RistoranteController extends Controller {
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(201);
     }
+    public function updateMenu(Request $request, Response $response, array $args) {
+        $id = $args['id'];
+        $data = $request->getParsedBody();
+        $query = "SELECT BIN_TO_UUID(Proprietario) FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+        $proprietario = $stmt->get_result()->fetch_assoc()['Proprietario'];
+        $token = $request->getAttribute("token");
+        $role = $token->role;
+        $userid = $token->sub;
+        if ($userid != $proprietario && $role != 'admin') {
+            $response->getBody()->write(Err::NOT_AUTHORIZED());
+            return $response
+                ->withStatus(401)
+                ->withHeader('Content-Type', 'application/json');
+        }
+        
+        $menu = $data['Menu'];
+        $query = "UPDATE Ristoranti SET Menu = ? WHERE IdRistorante = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$menu, $id]);
 
+        if (!$stmt) {
+            $response->getBody()->write(Err::RISTORANTE_UPDATE_ERROR());
+            return $response->withStatus(500);
+        }
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
     public function update(Request $request, Response $response, array $args) {
         $id = $args['id'];
         $data = $request->getParsedBody();
@@ -96,6 +143,7 @@ class RistoranteController extends Controller {
         $posizione = $data['Posizione'];
         $proprietario = $data['Proprietario'];
         $menu = $data['Menu'];
+        $buoniPastoAccettati = $data['BuoniPastoAccettati'];
 
         $query = "UPDATE Ristoranti SET Nome = ?, Descrizione = ?, Indirizzo = ?, Posizione = POINT(?, ?), Menu = ?, Proprietario = UUID_TO_BIN(?) WHERE IdRistorante = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
@@ -106,7 +154,9 @@ class RistoranteController extends Controller {
             return $response->withStatus(500);
         }
 
-        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, Proprietario FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
+        $this->updateBuoniPastoAccettati($id, $buoniPastoAccettati);
+
+        $query = "SELECT BIN_TO_UUID(IdRistorante) AS IdRistorante, Nome, Descrizione, Indirizzo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Menu, BIN_TO_UUID(Proprietario) AS Proprietario FROM Ristoranti WHERE IdRistorante = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
@@ -118,6 +168,18 @@ class RistoranteController extends Controller {
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
+    }
+
+    private function updateBuoniPastoAccettati($idRistorante, $buoniPastoAccettati) {
+        $query = "DELETE FROM BuoniPastoAccettati WHERE Ristorante = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$idRistorante]);
+
+        foreach ($buoniPastoAccettati as $tipoBuono) {
+            $query = "INSERT INTO BuoniPastoAccettati (Ristorante, TipoBuono) VALUES (UUID_TO_BIN(?), ?)";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$idRistorante, $tipoBuono]);
+        }
     }
 
     public function delete(Request $request, Response $response, array $args) {

@@ -10,7 +10,7 @@ use App\Controllers\Controller;
 class EventoController extends Controller {
 
     public function index(Request $request, Response $response, array $args) {
-        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi";
+        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
@@ -34,7 +34,7 @@ class EventoController extends Controller {
                 ->withStatus(403)
                 ->withHeader('Content-Type', 'application/json');
         }
-        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
+        $query = "SELECT BIN_TO_UUID(IdEvento) AS IdEvento, Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, X(Posizione) AS Latitudine, Y(Posizione) AS Longitudine, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
@@ -68,7 +68,7 @@ class EventoController extends Controller {
         $prezzo = $data['Prezzo'];
         $conprenotazione = $data['ConPrenotazione'];
         $capienza = $data['Capienza'];
-        $postioccupati = $capienza;
+        $postioccupati = 0;
         $query = "INSERT INTO Eventi (Titolo, Sottotitolo, Descrizione, Durata, Data,
         Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati)
         VALUES(?, ?, ?, ?, ?, ?, POINT(?, ?), ?, ?, ?, ?, ?)";

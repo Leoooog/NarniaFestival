@@ -222,11 +222,20 @@ class UserController extends Controller {
         $cognome = $data['Cognome'];
         $email = $data['Email'];
         $username = $data['Username'];
-        $password = $data['PasswordHash'];
 
-        $query = "UPDATE Utenti SET Nome = ?, Email = ?, PasswordHash = ?, Username = ?, Cognome = ? WHERE IdUtente = UUID_TO_BIN(?)";
+        $token = $request->getAttribute("token");
+        $role = $token->role;
+        $userid = $token->sub;
+        if ($userid != $id && $role != 'admin') {
+            $response->getBody()->write(Err::NOT_AUTHORIZED());
+            return $response
+                ->withStatus(401)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        $query = "UPDATE Utenti SET Nome = ?, Email = ?, Username = ?, Cognome = ? WHERE IdUtente = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$nome, $email, $password, $username, $cognome, $id]);
+        $stmt->execute([$nome, $email, $username, $cognome, $id]);
         $result = $stmt->get_result();
         if (!$stmt) {
             $response->getBody()->write(Err::USER_UPDATE_ERROR());

@@ -203,7 +203,7 @@ class BuonoController extends Controller {
             $ristoranteid = NULL;
         }
 
-        $query = "UPDATE BuoniPasto SET Valido = 0, Ristorante = ? WHERE IdBuono = ?";
+        $query = "UPDATE BuoniPasto SET Valido = 0, Ristorante = UUID_TO_BIN(?) WHERE IdBuono = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$ristoranteid, $buonoid]);
 

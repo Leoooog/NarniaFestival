@@ -94,9 +94,13 @@ class Err {
     public static function RISTORANTE_CREATION_ERROR($message = "Errore nella creazione del ristorante") {
         return json_encode(new Err(1029, $message));
     }
-    public static function UPLOAD_ERROR($message = "Errore nel caricamento del file") {
+    public static function EVENTO_NON_PRENOTABILE($message = "L'evento non è prenotabile") {
         return json_encode(new Err(1030, $message));
     }
+    public static function POSTI_ESAURITI($message = "Posti esauriti per l'evento specificato") {
+        return json_encode(new Err(1030, $message));
+    }
+    
 
     public $Codice;
     public $Messaggio;
