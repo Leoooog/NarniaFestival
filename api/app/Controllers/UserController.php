@@ -125,7 +125,6 @@ class UserController extends Controller {
         $password_hash = $data['PasswordHash'];
 
         $codice = mt_rand(100000, 999999);
-        $this->sendmail($email, $nome, $codice);
 
         $query = "INSERT INTO Utenti (Nome, Cognome, Username, PasswordHash, Email, CodiceVerifica) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
@@ -135,9 +134,7 @@ class UserController extends Controller {
             $response->getBody()->write(Err::USER_CREATION_ERROR());
             return $response->withStatus(500);
         }
-
-        $stmt->free_result();
-        $stmt->close();
+        $this->sendmail($email, $nome, $codice);
 
         $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente FROM Utenti WHERE IdUtente = @last_utente_uuid";
         $stmt = $this->db->prepare($query);
@@ -220,7 +217,27 @@ class UserController extends Controller {
     }
 
     public function sendNewCode(Request $request, Response $response, array $args) {
-
+        $id = $args['id'];
+        $query = "SELECT Email, Nome FROM Utenti WHERE IdUtente = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+        $result = $stmt->get_result();
+        if($result->num_rows == 0) {
+            $response->getBody()->write(Err::USER_NOT_FOUND());
+            return $response->withStatus(404);
+        }
+        $row = $result->fetch_assoc();
+        $email = $row['Email'];
+        $nome = $row['Nome'];
+        $codice = mt_rand(100000, 999999);
+        $query = "UPDATE Utenti SET CodiceVerifica = ?, DataVerifica = CURRENT_TIMESTAMP WHERE IdUtente = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$codice, $id]);
+        if (!$stmt) {
+            $response->getBody()->write(Err::USER_CREATION_ERROR());
+            return $response->withStatus(500);
+        }
+        $this->sendmail($email, $nome, $codice);
     }
 
     public function update(Request $request, Response $response, array $args) {
@@ -250,7 +267,7 @@ class UserController extends Controller {
             return $response->withStatus(500);
         }
 
-        if ($result === false) {
+        if ($stmt->affected_rows == 0) {
             $response->getBody()->write(Err::USER_NOT_FOUND());
             return $response->withStatus(404);
         }
