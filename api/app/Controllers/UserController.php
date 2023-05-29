@@ -125,6 +125,35 @@ class UserController extends Controller {
         $password_hash = $data['PasswordHash'];
 
         $codice = mt_rand(100000, 999999);
+        $this->sendmail($email, $nome, $codice);
+
+        $query = "INSERT INTO Utenti (Nome, Cognome, Username, PasswordHash, Email, CodiceVerifica) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$nome, $cognome, $username, $password_hash, $email, $codice]);
+
+        if (!$stmt) {
+            $response->getBody()->write(Err::USER_CREATION_ERROR());
+            return $response->withStatus(500);
+        }
+
+        $stmt->free_result();
+        $stmt->close();
+
+        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente FROM Utenti WHERE IdUtente = @last_utente_uuid";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $json = $this->encode_result($result);
+
+        $response->getBody()->write($json);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(201);
+    }
+
+    private function sendmail($email, $nome, $codice) {
         $headers = array(
             'From' => 'Narnia Festival App <leonardo.geusa.s@iisenzoferrari.it>',
             'Reply-To' => 'leonardo.geusa.s@iisenzoferrari.it',
@@ -188,31 +217,10 @@ class UserController extends Controller {
         </html>
         ';
         mail($email, "Codice di verifica NarniaFestival App", $message, $headers);
+    }
 
-        $query = "INSERT INTO Utenti (Nome, Cognome, Username, PasswordHash, Email, CodiceVerifica) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([$nome, $cognome, $username, $password_hash, $email, $codice]);
+    public function sendNewCode(Request $request, Response $response, array $args) {
 
-        if (!$stmt) {
-            $response->getBody()->write(Err::USER_CREATION_ERROR());
-            return $response->withStatus(500);
-        }
-
-        $stmt->free_result();
-        $stmt->close();
-
-        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente FROM Utenti WHERE IdUtente = @last_utente_uuid";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-        $json = $this->encode_result($result);
-
-        $response->getBody()->write($json);
-
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(201);
     }
 
     public function update(Request $request, Response $response, array $args) {

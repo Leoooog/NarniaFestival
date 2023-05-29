@@ -10,7 +10,11 @@ $app->get('/utenti', function ($request, $response, $args) {
     return $controller->index($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
 
-//todo: send new verification code
+$app->post('/utenti/{id}/new_code', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('UserController');
+    return $controller->sendNewCode($request, $response, $args);
+});
 
 $app->get('/utenti/me', function ($request, $response, $args) {
     global $container;
