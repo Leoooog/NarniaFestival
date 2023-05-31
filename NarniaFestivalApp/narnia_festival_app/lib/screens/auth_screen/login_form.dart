@@ -17,7 +17,6 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final Repository authRepository;
-
   _LoginFormState(this.authRepository);
 
   final _usernameController = TextEditingController();
@@ -289,7 +288,9 @@ class _LoginFormState extends State<LoginForm> {
                               height: MediaQuery.of(context).size.height / 150,
                             ),
                             InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.popAndPushNamed(context, "/register");
+                              },
                               child: const Text(
                                 "Registrati",
                                 style: TextStyle(

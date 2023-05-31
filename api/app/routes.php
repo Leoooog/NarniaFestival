@@ -214,4 +214,7 @@ $app->post('/buoni_pasto/{id}/brucia', function ($request, $response, $args) {
     return $controller->burn($request, $response, $args);
 })->add(new JwtMiddleware(['admin', 'ristorante']));
 
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+    return $response;
+});
 ?>

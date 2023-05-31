@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:narnia_festival_app/blocs/events_bloc/events_bloc.dart';
-import 'package:narnia_festival_app/blocs/events_bloc/events_event.dart';
 import 'package:narnia_festival_app/blocs/events_bloc/events_state.dart';
+import 'package:narnia_festival_app/main.dart';
 import 'package:narnia_festival_app/repositories/repository.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -21,56 +21,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eventi'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .primaryColor, // Colore di sfondo dell'header
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Benvenuto!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-                onTap: () {
-                  Navigator.of(context).popAndPushNamed(
-                    "/login",
-                  );
-                },
-                leading: const Icon(Icons.login_outlined),
-                title: const Text("Login")),
-            ListTile(
-                onTap: () {
-                  Navigator.of(context).popAndPushNamed("/register");
-                },
-                leading: const Icon(Icons.app_registration_outlined),
-                title: const Text("Registrati")),
-            ListTile(
-                onTap: () {
-                  Navigator.of(context).popAndPushNamed("/events");
-                },
-                leading: const Icon(Icons.event),
-                title: const Text("Eventi")),
-          ],
-        ),
-      ),
+    return MyScaffold(
       body: BlocBuilder<EventsBloc, EventsState>(
         builder: (context, state) {
           if (state is EventsLoading) {
@@ -143,13 +94,6 @@ class _EventsScreenState extends State<EventsScreen> {
           }
           return Container(); // Stato iniziale
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Dispatch dell'evento per caricare gli eventi
-          BlocProvider.of<EventsBloc>(context).add(FetchEvents());
-        },
-        child: const Icon(Icons.refresh),
       ),
     );
   }

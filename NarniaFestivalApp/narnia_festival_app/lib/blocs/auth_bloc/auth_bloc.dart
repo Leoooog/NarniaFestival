@@ -18,15 +18,28 @@ class AuthenticationBloc
   void _onAppStarted(
       AppStarted event, Emitter<AuthenticationState> emit) async {
     final hasToken = await repository.hasToken();
-    emit(hasToken
-        ? AuthenticationAuthenticated()
-        : AuthenticationUnauthenticated());
+    if (hasToken) {
+      try {
+        var user = await repository.getMe();
+        emit(AuthenticationAuthenticated(user));
+      } catch (error) {
+        emit(AuthenticationError(error.toString()));
+      }
+    } else {
+      emit(AuthenticationUnauthenticated());
+    }
   }
 
   void _onLoggedIn(LoggedIn event, Emitter<AuthenticationState> emit) async {
     emit(AuthenticationLoading());
+    print(event.token);
     await repository.saveToken(event.token);
-    emit(AuthenticationAuthenticated());
+    try {
+      var user = await repository.getMe();
+      emit(AuthenticationAuthenticated(user));
+    } catch (error) {
+      emit(AuthenticationError(error.toString()));
+    }
   }
 
   void _onLoggedOut(LoggedOut event, Emitter<AuthenticationState> emit) async {
@@ -34,5 +47,9 @@ class AuthenticationBloc
     await repository.deleteToken();
     await repository.deleteUserId();
     emit(AuthenticationUnauthenticated());
+  }
+
+  Future<bool> isAuthenticated() async {
+    return await repository.verifyToken();
   }
 }

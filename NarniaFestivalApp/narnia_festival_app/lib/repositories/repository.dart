@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:narnia_festival_app/models/event.dart';
+import 'package:narnia_festival_app/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Repository {
-  static const String apiUrl = "http://localhost:8000";
+  static const String apiUrl = "http://girasoli35.ddns.net:1880";
   final String loginUrl = "$apiUrl/api/login";
   final String verifyUrl = "$apiUrl/api/utenti/verifica_codice";
 
@@ -108,5 +109,29 @@ class Repository {
     var json = jsonDecode(response.body);
     var userid = json[0]['IdUtente'];
     await saveUserId(userid);
+  }
+
+  Future<bool> verifyToken() async {
+    var token = await getToken();
+    if (token != null) {
+      final response = await http.get(Uri.parse('$apiUrl/api/utenti/me'),
+          headers: {'Authorization': 'Bearer $token'});
+      return response.statusCode == 200;
+    }
+    return false;
+  }
+
+  Future<User> getMe() async {
+    var token = await getToken();
+    final response = await http.get(Uri.parse('$apiUrl/api/utenti/me'),
+        headers: {'Authorization': 'Bearer $token'});
+    print(response.body);
+    if (response.statusCode == 200) {
+      var json = jsonDecode(response.body)[0];
+      User user = User.fromJson(json);
+      return user;
+    } else {
+      throw (Exception(response.body));
+    }
   }
 }

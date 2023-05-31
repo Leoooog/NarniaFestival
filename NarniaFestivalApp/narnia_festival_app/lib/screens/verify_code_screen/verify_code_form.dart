@@ -38,7 +38,8 @@ class _VerifyCodeFormState extends State<VerifyCodeForm> {
       child: BlocBuilder<VerificationBloc, VerificationState>(
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.3),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
