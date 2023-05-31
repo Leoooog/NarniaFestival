@@ -103,9 +103,9 @@ CREATE TABLE IF NOT EXISTS
     ),
     Titolo VARCHAR(50) NOT NULL,
     Sottotitolo VARCHAR(100) NOT NULL,
-    Descrizione VARCHAR(1024) NOT NULL,
+    Descrizione TEXT NOT NULL,
     Durata TIME NOT NULL,
-    DATA DATETIME NOT NULL,
+    Data DATETIME NOT NULL,
     Luogo VARCHAR(500) NOT NULL,
     Posizione POINT,
     Tipo INT NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS
         (UUID(), '-', '')
     ),
     Nome VARCHAR(50) NOT NULL,
-    Descrizione VARCHAR(1024) NOT NULL,
+    Descrizione TEXT NOT NULL,
     Indirizzo VARCHAR(100) NOT NULL,
     Posizione POINT,
     Menu BLOB,
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS
     Id INT NOT NULL,
     Valore FLOAT(5, 2) NOT NULL,
     Nome VARCHAR(50) NOT NULL,
-    Descrizione VARCHAR(200) NOT NULL,
+    Descrizione TEXT NOT NULL,
     PRIMARY KEY (Id)
   ) ENGINE = InnoDB;
 

@@ -16,10 +16,17 @@ class EventoController extends Controller {
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
+
         if (!$json) {
             $json = "[]";
         }
 
+        $decoded = json_decode($json, true);
+        for ($i = 0; $i < sizeof($decoded); $i++) {
+            if (!$decoded[$i]['ConPrenotazione']) {
+                unset($decoded[$i]['Capienza'], $decoded[$i]['PostiOccupati']);
+            }
+        }
         $response->getBody()->write($json);
         return $response
             ->withHeader('Content-Type', 'application/json')
@@ -47,8 +54,11 @@ class EventoController extends Controller {
         }
 
         $json = $this->encode_result($result);
-
-        $response->getBody()->write($json);
+        $decoded = json_decode($json, true);
+        if (!$decoded[0]['ConPrenotazione']) {
+            unset($decoded[0]['Capienza'], $decoded[0]['PostiOccupati']);
+        }
+        $response->getBody()->write(json_encode($decoded));
 
         return $response
             ->withHeader('Content-Type', 'application/json')
@@ -90,8 +100,11 @@ class EventoController extends Controller {
 
         $result = $stmt->get_result();
         $json = $this->encode_result($result);
-
-        $response->getBody()->write($json);
+        $decoded = json_decode($json, true);
+        if (!$decoded[0]['ConPrenotazione']) {
+            unset($decoded[0]['Capienza'], $decoded[0]['PostiOccupati']);
+        }
+        $response->getBody()->write(json_encode($decoded));
 
         return $response
             ->withHeader('Content-Type', 'application/json')

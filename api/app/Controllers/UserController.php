@@ -214,6 +214,7 @@ class UserController extends Controller {
         </html>
         ';
         mail($email, "Codice di verifica NarniaFestival App", $message, $headers);
+    
     }
 
     public function sendNewCode(Request $request, Response $response, array $args) {
@@ -238,6 +239,7 @@ class UserController extends Controller {
             return $response->withStatus(500);
         }
         $this->sendmail($email, $nome, $codice);
+        return $response->withStatus(200);
     }
 
     public function update(Request $request, Response $response, array $args) {

@@ -31,9 +31,6 @@ class Controller {
             }
             $rows[] = $row;
         }
-        if (count($rows) == 1) {
-            return json_encode($rows[0]);
-        }
         if (count($rows) == 0) {
             return FALSE;
         }
