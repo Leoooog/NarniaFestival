@@ -120,7 +120,15 @@ class Repository {
     }
     return false;
   }
-
+  Future<void> logout() async {
+    var token = await getToken();
+    if(token == null) return;
+    final response = await http.post(Uri.parse('$apiUrl/api/logout'),
+        headers: {'Authorization': 'Bearer $token'});
+    if (response.statusCode != 200) {
+      throw Exception(response.body);
+    }
+  }
   Future<User> getMe() async {
     var token = await getToken();
     final response = await http.get(Uri.parse('$apiUrl/api/utenti/me'),
