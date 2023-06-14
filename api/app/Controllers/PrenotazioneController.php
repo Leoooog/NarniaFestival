@@ -89,8 +89,6 @@ class PrenotazioneController extends Controller {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(403);
         }
-        echo $capienza;
-        echo $postiOccupati;
 
         if ($postiOccupati + $posti > $capienza) {
             $response->getBody()->write(Err::POSTI_ESAURITI());
