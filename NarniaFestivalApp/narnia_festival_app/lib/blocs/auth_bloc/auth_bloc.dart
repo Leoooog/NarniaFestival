@@ -44,6 +44,7 @@ class AuthenticationBloc
 
   void _onLoggedOut(LoggedOut event, Emitter<AuthenticationState> emit) async {
     emit(AuthenticationLoading());
+    await repository.logout();
     await repository.deleteToken();
     await repository.deleteUserId();
     emit(AuthenticationUnauthenticated());
