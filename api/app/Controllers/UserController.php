@@ -247,7 +247,6 @@ class UserController extends Controller {
         $data = $request->getParsedBody();
         $nome = $data['Nome'];
         $cognome = $data['Cognome'];
-        $email = $data['Email'];
         $username = $data['Username'];
 
         $token = $request->getAttribute("token");
@@ -260,9 +259,23 @@ class UserController extends Controller {
                 ->withHeader('Content-Type', 'application/json');
         }
 
-        $query = "UPDATE Utenti SET Nome = ?, Email = ?, Username = ?, Cognome = ? WHERE IdUtente = UUID_TO_BIN(?)";
+        $query = "SELECT EXISTS (SELECT IdUtente FROM Utenti WHERE Username = ?)";
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$nome, $email, $username, $cognome, $id]);
+        $stmt->execute([$username]);
+        $result = $stmt->get_result();
+        $result = $result->fetch_column();
+
+        if ($result == 1) {
+            $response->getBody()->write(Err::USERNAME_IN_USE());
+            return $response
+                ->withStatus(403)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+
+        $query = "UPDATE Utenti SET Nome = ?, Username = ?, Cognome = ? WHERE IdUtente = UUID_TO_BIN(?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$nome, $username, $cognome, $id]);
         $result = $stmt->get_result();
         if (!$stmt) {
             $response->getBody()->write(Err::USER_UPDATE_ERROR());
@@ -274,7 +287,7 @@ class UserController extends Controller {
             return $response->withStatus(404);
         }
 
-        $query = "SELECT * FROM Utenti WHERE IdUtente = UUID_TO_BIN(?)";
+        $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente, Nome, Cognome, Username, Email, Verificato, Ruolo, DataCreazione FROM Utenti WHERE IdUtente = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 

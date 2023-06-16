@@ -34,7 +34,7 @@ $app->post('/utenti', function ($request, $response, $args) {
     return $controller->create($request, $response, $args);
 });
 
-$app->put('/utenti', function ($request, $response, $args) {
+$app->put('/utenti/{id}', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('UserController');
     return $controller->update($request, $response, $args);
@@ -72,6 +72,12 @@ $app->get('/eventi', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('EventoController');
     return $controller->index($request, $response, $args);
+});
+
+$app->get('/eventi/{id}', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('EventoController');
+    return $controller->show($request, $response, $args);
 });
 
 $app->post('/eventi', function ($request, $response, $args) {

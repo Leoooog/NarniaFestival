@@ -57,9 +57,23 @@ class PrenotazioneController extends Controller {
 
     public function create(Request $request, Response $response, array $args) {
         $data = $request->getParsedBody();
-        $utente = $data['Utente'];
         $evento = $data['Evento'];
         $posti = $data['Posti'];
+
+
+        $token = $request->getAttribute("token");
+        $userid = $token->sub;
+        $role = $token->role;
+        if (array_key_exists('Utente', $data)) {
+            $utente = $data['Utente'];
+            if ($utente != $userid && $role != "admin") {
+                $response->getBody()->write(Err::NOT_AUTHORIZED());
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(401);
+            }
+            $userid = $utente;
+        }
 
         if ($posti > 6) {
             $response->getBody()->write(Err::ERROR("Troppi posti richiesti. Massimo: 6"));
@@ -67,7 +81,7 @@ class PrenotazioneController extends Controller {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(403);
         }
-        
+
         $eventoQuery = "SELECT Capienza, PostiOccupati FROM Eventi WHERE IdEvento = UUID_TO_BIN(?)";
         $eventoStmt = $this->db->prepare($eventoQuery);
         $eventoStmt->execute([$evento]);
@@ -106,7 +120,7 @@ class PrenotazioneController extends Controller {
         $insertQuery = "INSERT INTO Prenotazioni (Utente, Evento, Posti)
                         VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?)";
         $insertStmt = $this->db->prepare($insertQuery);
-        $insertStmt->execute([$utente, $evento, $posti]);
+        $insertStmt->execute([$userid, $evento, $posti]);
 
         if (!$insertStmt) {
             $response->getBody()->write(Err::PRENOTAZIONE_CREATION_ERROR());
@@ -162,9 +176,37 @@ class PrenotazioneController extends Controller {
     public function update(Request $request, Response $response, array $args) {
         $id = $args['id'];
         $data = $request->getParsedBody();
-        $utente = $data['Utente'];
         $evento = $data['Evento'];
         $posti = $data['Posti'];
+        $token = $request->getAttribute("token");
+        $userid = $token->sub;
+        $role = $token->role;
+        if ($role != 'admin') {
+            $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente FROM Prenotazioni WHERE IdPrenotazione = UUID_TO_BIN(?)";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$id]);
+            if ($stmt->affected_rows == 0) {
+                $response->getBody()->write(Err::PRENOTAZIONE_NOT_FOUND());
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            if ($row['IdUtente'] !== $userid) {
+                $response->getBody()->write(Err::PRENOTAZIONE_NOT_FOUND());
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+        }
+        if (array_key_exists('Utente', $data)) {
+            $utente = $data['Utente'];
+            if ($utente != $userid && $role != "admin") {
+                $response->getBody()->write(Err::NOT_AUTHORIZED());
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(401);
+            }
+            $userid = $utente;
+        }
+        
 
         $query = "UPDATE Prenotazioni SET Utente = UUID_TO_BIN(?), Evento = UUID_TO_BIN(?), Posti = ? WHERE IdPrenotazione = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
@@ -191,17 +233,35 @@ class PrenotazioneController extends Controller {
 
     public function delete(Request $request, Response $response, array $args) {
         $id = $args['id'];
+        $token = $request->getAttribute("token");
+        $userId = $token->sub;
+        $role = $token->role;
+        if ($role != 'admin') {
+            $query = "SELECT BIN_TO_UUID(IdUtente) AS IdUtente FROM Prenotazioni WHERE IdPrenotazione = UUID_TO_BIN(?)";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$id]);
+            if ($stmt->affected_rows == 0) {
+                $response->getBody()->write(Err::PRENOTAZIONE_NOT_FOUND());
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            if ($row['IdUtente'] !== $userId) {
+                $response->getBody()->write(Err::PRENOTAZIONE_NOT_FOUND());
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+        }
 
         $query = "DELETE FROM Prenotazioni WHERE IdPrenotazione = UUID_TO_BIN(?)";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
 
         if (!$stmt) {
-            $response->getBody()->write(Err::EVENTO_DELETE_ERROR());
+            $response->getBody()->write(Err::PRENOTAZIONE_DELETE_ERROR());
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
         if ($stmt->affected_rows == 0) {
-            $response->getBody()->write(Err::EVENTO_NOT_FOUND());
+            $response->getBody()->write(Err::PRENOTAZIONE_NOT_FOUND());
             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
         }
         return $response->withStatus(204);

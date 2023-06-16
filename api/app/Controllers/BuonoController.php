@@ -27,6 +27,10 @@ class BuonoController extends Controller {
 
     public function show(Request $request, Response $response, array $args) {
         $id = $args['id'];
+        $token = $request->getAttribute("token");
+        $userid = $token->sub;
+        $role = $token->role;
+
         if (!preg_match("/^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i", $id)) {
             $response->getBody()->write(Err::MALFORMED_UUID());
             return $response
@@ -38,10 +42,10 @@ class BuonoController extends Controller {
         $stmt->execute([$id]);
 
         $result = $stmt->get_result();
-        if ($result->num_rows == 0) {
+        if ($result->num_rows == 0 || ($userid != $id && $role != "admin")) {
             $response->getBody()->write(Err::BUONO_NOT_FOUND());
             return $response
-                ->withStatus(404)
+                ->withStatus(400)
                 ->withHeader('Content-Type', 'application/json');
         }
 
