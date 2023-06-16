@@ -124,6 +124,12 @@ $app->get('/prenotazioni/{id}', function ($request, $response, $args) {
     return $controller->show($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
 
+$app->put('/prenotazioni/{id}', function ($request, $response, $args) {
+    global $container;
+    $controller = $container->get('PrenotazioneController');
+    return $controller->update($request, $response, $args);
+})->add(new JwtMiddleware(['admin', 'iscritto', 'ospite', 'ristorante']));
+
 $app->delete('/prenotazioni/{id}', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('PrenotazioneController');
@@ -135,6 +141,8 @@ $app->post('/prenotazioni/{id}/validate', function ($request, $response, $args) 
     $controller = $container->get('PrenotazioneController');
     return $controller->validate($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
+
+
 
 // ---------------------- RISTORANTI ----------------------
 
