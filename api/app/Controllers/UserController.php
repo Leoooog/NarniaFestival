@@ -304,10 +304,11 @@ class UserController extends Controller {
     public function verify(Request $request, Response $response, array $args) {
         $data = $request->getParsedBody();
         $code = $data['Codice'];
+        $userid = $data['IdUtente'];
 
-        $query = "UPDATE Utenti SET Verificato = TRUE WHERE Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 5";
+        $query = "UPDATE Utenti SET Verificato = TRUE WHERE IdUtente = UUID_TO_BIN(?) Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 5";
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$code]);
+        $stmt->execute([$userid, $code]);
         if ($stmt->affected_rows == 0) {
             $response->getBody()->write(Err::WRONG_VERIFY_CODE());
             return $response->withStatus(403)
@@ -351,11 +352,11 @@ class UserController extends Controller {
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
         $row = $result->fetch_assoc();
+        $userid = $row['IdUtente'];
         if (!$row['Verificato']) {
-            $response->getBody()->write(Err::NOT_VERIFIED());
+            $response->getBody()->write(Err::NOT_VERIFIED($userid));
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
-        $userid = $row['IdUtente'];
         $ruolo = $this->ruoli[$row['Ruolo']];
         $payload = [
             'sub' =>  "$userid",

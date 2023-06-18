@@ -55,8 +55,11 @@ class Err {
     public static function BUONO_CREATION_ERROR($message = "Errore nella creazione del buono pasto") {
         return json_encode(new Err(1016, $message));
     }
-	public static function NOT_VERIFIED($message = "L'utente non è verificato") {
-        return json_encode(new Err(1017, $message));
+    public static function NOT_VERIFIED($idUtente, $message = "L'utente non è verificato") {
+        $utente = array();
+        $utente['IdUtente'] = $idUtente;
+        $m = (object) array_merge((array)new Err(1017, $message), (array)$utente);
+        return json_encode($m);
     }
     public static function EVENTO_DELETE_ERROR($message = "Errore nell'eliminazione dell'evento") {
         return json_encode(new Err(1018, $message));
@@ -100,7 +103,7 @@ class Err {
     public static function POSTI_ESAURITI($message = "Posti esauriti per l'evento specificato") {
         return json_encode(new Err(1030, $message));
     }
-    
+
 
     public $Codice;
     public $Messaggio;
