@@ -304,7 +304,7 @@ class UserController extends Controller {
     public function verify(Request $request, Response $response, array $args) {
         $data = $request->getParsedBody();
         $code = $data['Codice'];
-        $userid = $data['IdUtente'];
+        $userid = $args['id'];
 
         $query = "UPDATE Utenti SET Verificato = TRUE WHERE IdUtente = UUID_TO_BIN(?) AND Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 5";
         $stmt = $this->db->prepare($query);

@@ -40,7 +40,7 @@ $app->put('/utenti/{id}', function ($request, $response, $args) {
     return $controller->update($request, $response, $args);
 })->add(new JwtMiddleware(['iscritto', 'ospite', 'ristorante', 'admin']));
 
-$app->post('/utenti/verifica_codice', function ($request, $response, $args) {
+$app->post('/utenti/{id}/verifica_codice', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('UserController');
     return $controller->verify($request, $response, $args);
