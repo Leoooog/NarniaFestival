@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS
     Menu BLOB,
     Proprietario BINARY(16) NOT NULL,
     PRIMARY KEY (IdRistorante),
-    FOREIGN KEY (Proprietario) REFERENCES Utenti (IdUtente)
+    FOREIGN KEY (Proprietario) REFERENCES Utenti (IdUtente) ON DELETE CASCADE
   ) ENGINE = InnoDB;
 
 
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS
     Ristorante BINARY(16) DEFAULT NULL,
     PRIMARY KEY (IdBuono),
     FOREIGN KEY (Tipo) REFERENCES TipiBuono (Id),
-    FOREIGN KEY (Utente) REFERENCES Utenti (IdUtente),
+    FOREIGN KEY (Utente) REFERENCES Utenti (IdUtente) ON DELETE CASCADE,
     FOREIGN KEY (Ristorante) REFERENCES Ristoranti (IdRistorante)
   ) ENGINE = InnoDB;
 
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS
     Posti INT NOT NULL,
     Validata TINYINT DEFAULT FALSE,
     PRIMARY KEY (IdPrenotazione),
-    FOREIGN KEY (Utente) REFERENCES Utenti (IdUtente),
+    FOREIGN KEY (Utente) REFERENCES Utenti (IdUtente) ON DELETE CASCADE,
     FOREIGN KEY (Evento) REFERENCES Eventi (IdEvento)
   ) ENGINE = InnoDB;
 
