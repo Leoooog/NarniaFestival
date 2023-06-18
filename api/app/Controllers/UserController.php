@@ -228,6 +228,11 @@ class UserController extends Controller {
             return $response->withStatus(404);
         }
         $row = $result->fetch_assoc();
+        $verificato = $row['Verificato'];
+        if($verificato) {
+            $response->getBody()->write(ERR::USER_ALREADY_VERIFIED());
+            return $response->withStatus(403);
+        }
         $email = $row['Email'];
         $nome = $row['Nome'];
         $codice = mt_rand(100000, 999999);

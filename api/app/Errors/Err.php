@@ -28,6 +28,10 @@ class Err {
     public static function EXPIRED_VERIFY_CODE($message = "Codice verifica sbagliato") {
         return json_encode(new Err(1007, $message));
     }
+    public static function USER_ALREADY_VERIFIED($message = "L'utente è già stato verificato") {
+        return json_encode(new Err(1032, $message));
+    }
+    
     public static function TOKEN_NOT_VALID($message = "Token non valido") {
         return json_encode(new Err(1008, $message));
     }
@@ -101,7 +105,7 @@ class Err {
         return json_encode(new Err(1030, $message));
     }
     public static function POSTI_ESAURITI($message = "Posti esauriti per l'evento specificato") {
-        return json_encode(new Err(1030, $message));
+        return json_encode(new Err(1031, $message));
     }
 
 
