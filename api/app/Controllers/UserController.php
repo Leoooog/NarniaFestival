@@ -306,7 +306,7 @@ class UserController extends Controller {
         $code = $data['Codice'];
         $userid = $data['IdUtente'];
 
-        $query = "UPDATE Utenti SET Verificato = TRUE WHERE IdUtente = UUID_TO_BIN(?) Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 5";
+        $query = "UPDATE Utenti SET Verificato = TRUE WHERE IdUtente = UUID_TO_BIN(?) AND Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 5";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$userid, $code]);
         if ($stmt->affected_rows == 0) {
