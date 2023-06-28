@@ -167,7 +167,7 @@ SET @image = LOAD_FILE('/home/pi/NarniaFestival/db/menu.png');
 
 INSERT INTO Ristoranti (Nome, Descrizione, Indirizzo, Posizione, Menu, Proprietario)
 VALUES
-  ('Ristorante di Chiara', 'Un ristorante accogliente che offre cucina tradizionale italiana', 'Via Roma 1, Milano', POINT(45.1234, 9.5678), @image);
+  ('Ristorante di Chiara', 'Un ristorante accogliente che offre cucina tradizionale italiana', 'Via Roma 1, Milano', POINT(45.1234, 9.5678), @image, @last_utente_uuid);
 
 CREATE TABLE IF NOT EXISTS
   TipiBuono (
