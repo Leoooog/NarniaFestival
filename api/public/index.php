@@ -3,6 +3,7 @@
 use App\Errors\Err;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
 use Slim\Psr7\Response;
@@ -36,6 +37,11 @@ $customErrorHandler = function (
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(404);
+    }else if($exception instanceof HttpMethodNotAllowedException) {
+        $response->getBody()->write(Err::ERROR("Metodo non accettato"));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(405);
     }
     $response->getBody()->write(Err::ERROR($exception->getMessage()));
     return $response->withHeader('Content-Type', 'application/json')

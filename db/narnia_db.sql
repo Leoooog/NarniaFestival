@@ -75,6 +75,19 @@ CREATE TABLE IF NOT EXISTS
     FOREIGN KEY (Ruolo) REFERENCES Ruoli (Id)
   ) ENGINE = InnoDB;
 
+  INSERT INTO Utenti (Nome, Cognome, Username, PasswordHash, Email, CodiceVerifica, Verificato, Ruolo)
+VALUES
+  ('Mario', 'Rossi', 'mario123', 'c4ca4238a0b923820dcc509a6f75849b', 'mario@example.com', 123456, 1, 1),
+  ('Luigi', 'Verdi', 'luigi456', 'c81e728d9d4c2f636f067f89cc14862c', 'luigi@example.com', 654321, 1, 2),
+  ('Giovanna', 'Bianchi', 'giovanna789', 'eccbc87e4b5ce2fe28308fd9f2a7baf3', 'giovanna@example.com', 987654, 1, 2),
+  ('Francesca', 'Neri', 'francesca012', 'a87ff679a2f3e71d9181a67b7542122c', 'francesca@example.com', 246810, 1, 3),
+  ('Alessandro', 'Gialli', 'alessandro345', 'e4da3b7fbbce2345d7772b0674a318d5', 'alessandro@example.com', 135790, 1, 3),
+  ('Sara', 'Marroni', 'sara678', '1679091c5a880faf6fb5e6087eb1b2dc', 'sara@example.com', 908172, 1, 3),
+  ('Marco', 'Blu', 'marco901', '8f14e45fceea167a5a36dedd4bea2543', 'marco@example.com', 271819, 1, 3),
+  ('Luisa', 'Arancio', 'luisa234', 'c9f0f895fb98ab9159f51fd0297e236d', 'luisa@example.com', 192837, 1, 3),
+  ('Paolo', 'Viola', 'paolo567', '45c48cce2e2d7fbdea1afc51c7c6ad26', 'paolo@example.com', 918273, 1, 3),
+  ('Chiara', 'Rosa', 'chiara890', 'd3d9446802a44259755d38e6d163e820', 'chiara@example.com', 738291, 1, 4);
+
 
 CREATE TABLE IF NOT EXISTS
   TipiEventi (
@@ -117,6 +130,21 @@ CREATE TABLE IF NOT EXISTS
     FOREIGN KEY (Tipo) REFERENCES TipiEventi (Id)
   ) ENGINE = InnoDB;
 
+INSERT INTO Eventi (Titolo, Sottotitolo, Descrizione, Durata, Data, Luogo, Posizione, Tipo, Prezzo, ConPrenotazione, Capienza, PostiOccupati)
+VALUES
+  ('Concerto di Rock', 'Una notte di musica e divertimento', 'Un concerto di rock che ti farà ballare tutta la notte', '02:30:00', '2023-06-24 20:00:00', 'Teatro XYZ', POINT(45.1234, 9.5678), 1, 25.50, 1, 1000, 500),
+  ('Seminario di Marketing', 'Strategie per il successo nel mercato odierno', 'Un seminario informativo sulle ultime tendenze di marketing', '04:00:00', '2023-06-25 09:00:00', 'Centro Conferenze ABC', POINT(46.7890, 10.1234), 2, 0.00, 0, 200, 150),
+  ('Mostra d''Arte Contemporanea', 'Scopri le opere dei migliori artisti contemporanei', 'Una mostra che espone una selezione di opere d''arte moderne', '03:30:00', '2023-06-26 18:00:00', 'Galleria d''Arte DEF', POINT(47.4567, 11.7890), 3, 12.99, 0, 500, 250),
+  ('Concerto Acustico', 'Un''esperienza musicale intima', 'Un concerto acustico dal vivo con artisti locali', '01:30:00', '2023-06-27 19:30:00', 'Club XYZ', POINT(45.6789, 9.0123), 1, 15.00, 1, 200, 180),
+  ('Conferenza sullo Sviluppo Personale', 'Scopri il tuo vero potenziale', 'Una conferenza interattiva per migliorare te stesso', '02:00:00', '2023-06-28 10:00:00', 'Centro Conferenze ABC', POINT(46.3456, 10.6789), 2, 10.99, 1, 150, 120),
+  ('Mostra Fotografica', 'Istantanee di vita quotidiana', 'Una mostra fotografica che cattura la bellezza della vita di tutti i giorni', '02:30:00', '2023-06-29 17:30:00', 'Museo di Fotografia GHI', POINT(47.0123, 11.3456), 3, 8.50, 0, 300, 200),
+  ('Spettacolo di Magia', 'Lasciati stupire da incredibili illusioni', 'Uno spettacolo di magia che ti lascerà a bocca aperta', '01:30:00', '2023-06-30 20:30:00', 'Teatro XYZ', POINT(45.7890, 9.2345), 1, 20.00, 1, 100, 90),
+  ('Lezione di Cucina', 'Scopri i segreti della cucina italiana', 'Una lezione pratica per imparare a cucinare i piatti tradizionali italiani', '03:00:00', '2023-07-01 09:00:00', 'Scuola di Cucina MNO', POINT(46.4567, 10.9012), 2, 30.50, 1, 50, 40),
+  ('Esposizione di Sculture', 'Amira l''arte in tre dimensioni', 'Un''esposizione di sculture di artisti rinomati', '02:30:00', '2023-07-02 16:00:00', 'Parco Pubblico PQR', POINT(47.1234, 11.5678), 3, 15.99, 0, 100, 80),
+  ('Festival di Musica Indie', 'La scoperta dei nuovi talenti musicali', 'Un festival che celebra la musica indie con artisti emergenti', '06:00:00', '2023-07-03 14:00:00', 'Piazza Principale STU', POINT(48.7890, 12.1234), 1, 35.00, 1, 5000, 4000),
+  ('Conferenza di Tecnologia', 'Le ultime novità nel mondo della tecnologia', 'Una conferenza per conoscere le nuove tendenze e innovazioni tecnologiche', '04:30:00', '2023-07-04 11:30:00', 'Centro Conferenze ABC', POINT(49.4567, 12.7890), 2, 15.99, 1, 300, 250),
+  ('Mostra di Pittura', 'Un viaggio nel mondo dei colori', 'Una mostra che presenta opere pittoriche di artisti di fama internazionale', '03:00:00', '2023-07-05 17:00:00', 'Galleria d''Arte DEF', POINT(50.0123, 13.3456), 3, 10.50, 0, 400, 300),
+  ('Spettacolo di Commedia', 'Ridere senza sosta con i migliori comici', 'Uno spettacolo comico che ti farà morire dalle risate', '02:00:00', '2023-07-06 21:00:00', 'Teatro XYZ', POINT(49.7890, 12.2345), 1, 18.00, 1, 200, 180);
 
 CREATE TABLE IF NOT EXISTS
   Ristoranti (
@@ -134,6 +162,12 @@ CREATE TABLE IF NOT EXISTS
     FOREIGN KEY (Proprietario) REFERENCES Utenti (IdUtente) ON DELETE CASCADE
   ) ENGINE = InnoDB;
 
+
+SET @image = LOAD_FILE('/home/pi/NarniaFestival/db/menu.png');
+
+INSERT INTO Ristoranti (Nome, Descrizione, Indirizzo, Posizione, Menu, Proprietario)
+VALUES
+  ('Ristorante di Chiara', 'Un ristorante accogliente che offre cucina tradizionale italiana', 'Via Roma 1, Milano', POINT(45.1234, 9.5678), @image);
 
 CREATE TABLE IF NOT EXISTS
   TipiBuono (
