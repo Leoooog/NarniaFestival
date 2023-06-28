@@ -74,6 +74,11 @@ CREATE TABLE IF NOT EXISTS
     PRIMARY KEY (IdUtente),
     FOREIGN KEY (Ruolo) REFERENCES Ruoli (Id)
   ) ENGINE = InnoDB;
+CREATE TRIGGER ai_utenti AFTER
+INSERT
+  ON Utenti FOR EACH ROW
+SET
+  @last_utente_uuid = NEW.IdUtente;
 
   INSERT INTO Utenti (Nome, Cognome, Username, PasswordHash, Email, CodiceVerifica, Verificato, Ruolo)
 VALUES
@@ -270,13 +275,6 @@ INSERT
   ON Eventi FOR EACH ROW
 SET
   @last_evento_uuid = NEW.IdEvento;
-
-
-CREATE TRIGGER ai_utenti AFTER
-INSERT
-  ON Utenti FOR EACH ROW
-SET
-  @last_utente_uuid = NEW.IdUtente;
 
 
 CREATE TRIGGER ai_ristoranti AFTER
