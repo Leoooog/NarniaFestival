@@ -1,145 +1,157 @@
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:narnia_festival_app/models/event.dart';
-import 'package:narnia_festival_app/models/user.dart';
+import 'package:narnia_festival_app/errors/errors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Repository {
-  static const String apiUrl = "http://girasoli35.ddns.net:1880";
-  final String loginUrl = "$apiUrl/api/login";
-  final String verifyUrl = "$apiUrl/api/utenti/verifica_codice";
+const String authority = "girasoli35.ddns.net:1880";
 
-  Future<bool> hasToken() async {
-    var token = await getToken();
-    return token != null;
-  }
-
-  Future<String?> getToken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    var token = preferences.getString("token");
-    return token;
-  }
-
-  Future<void> saveToken(String token) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString("token", token);
-  }
-
-  Future<void> deleteToken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.remove("token");
-  }
-
-  Future<String> login(String username, String password) async {
-    final response = await http.post(Uri.parse(loginUrl),
-        body: {"Username": username, "Password": generateHash(password)});
-    if (response.statusCode != 200) {
-      final error = jsonDecode(response.body);
-      if (error['Codice'] == 1017) {
-        throw Exception('1017');
-      }
-      throw Exception(response.body);
-    }
-    return response.body; //token
-  }
-
-  Future<List<Event>> getEvents() async {
-    final response = await http.get(Uri.parse('$apiUrl/api/eventi'));
-    if (response.statusCode == 200) {
-      List<Event> events = [];
-      for (var json in jsonDecode(response.body)) {
-        events.add(Event.fromJson(json));
-      }
-      return events;
+abstract class Repository {
+  @protected
+  Future<http.Response> post(
+      String route, Object body, int codeSuccess, bool authenticated) async {
+    route = await _removePlaceholders(route);
+    Uri url = Uri.http(authority, route);
+    Map<String, String> headers;
+    if (authenticated) {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      var token = preferences.getString('token');
+      if (token == null) throw Exception("token is null");
+      headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      };
     } else {
-      throw Exception('Failed to load events');
+      headers = {"Content-Type": "application/json"};
     }
-  }
-
-  String generateHash(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
-  Future<bool> verifyCode(String code) async {
-    final response = await http.post(Uri.parse(verifyUrl), body: {
-      "Codice": code,
-    });
-    return response.statusCode == 200;
-  }
-
-  Future<void> newCode() async {
-    var id = getUserId();
-    final response =
-        await http.post(Uri.parse("$apiUrl/api/utenti/$id/new_code"));
-    if (response.statusCode != 200) throw Exception(response.body);
-  }
-
-  Future<void> deleteUserId() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.remove("userid");
-  }
-
-  Future<void> saveUserId(String userid) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString("userid", userid);
-  }
-
-  Future<String?> getUserId() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    var userid = preferences.getString("userid");
-    return userid;
-  }
-
-  Future<void> registerUser(String nome, String cognome, String username,
-      String email, String password) async {
-    final response = await http.post(Uri.parse("$apiUrl/api/utenti"), body: {
-      "Nome": nome,
-      "Cognome": cognome,
-      "Username": username,
-      "Email": email,
-      "PasswordHash": generateHash(password)
-    });
-    if (response.statusCode != 201) {
-      throw Exception(response.body);
+    final http.Response response = await http
+        .post(url, headers: headers, body: jsonEncode(body))
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != codeSuccess) {
+      var body = jsonDecode(response.body);
+      var codice = body['Codice'];
+      var messaggio = body['Messaggio'];
+      if (codice == 1017) {
+        throw NotVerifiedError(
+            codice: codice, messaggio: messaggio, idUtente: body['IdUtente']);
+      } else {
+        throw CustomError(codice: codice, messaggio: messaggio);
+      }
     }
-    var json = jsonDecode(response.body);
-    var userid = json[0]['IdUtente'];
-    await saveUserId(userid);
+    return response;
   }
 
-  Future<bool> verifyToken() async {
-    var token = await getToken();
-    if (token != null) {
-      final response = await http.get(Uri.parse('$apiUrl/api/utenti/me'),
-          headers: {'Authorization': 'Bearer $token'});
-      return response.statusCode == 200;
-    }
-    return false;
-  }
-  Future<void> logout() async {
-    var token = await getToken();
-    if(token == null) return;
-    final response = await http.post(Uri.parse('$apiUrl/api/logout'),
-        headers: {'Authorization': 'Bearer $token'});
-    if (response.statusCode != 200) {
-      throw Exception(response.body);
-    }
-  }
-  Future<User> getMe() async {
-    var token = await getToken();
-    final response = await http.get(Uri.parse('$apiUrl/api/utenti/me'),
-        headers: {'Authorization': 'Bearer $token'});
-    print(response.body);
-    if (response.statusCode == 200) {
-      var json = jsonDecode(response.body)[0];
-      User user = User.fromJson(json);
-      return user;
+  @protected
+  Future<http.Response> put(
+      String route, Object body, int codeSuccess, bool authenticated) async {
+    route = await _removePlaceholders(route);
+    Uri url = Uri.http(authority, route);
+    Map<String, String> headers;
+    if (authenticated) {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      var token = preferences.getString('token');
+      if (token == null) throw Exception("token is null");
+      headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      };
     } else {
-      throw (Exception(response.body));
+      headers = {"Content-Type": "application/json"};
     }
+    final http.Response response = await http
+        .put(url, headers: headers, body: body)
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != codeSuccess) {
+      var body = jsonDecode(response.body);
+      var codice = body['Codice'];
+      var messaggio = body['Messaggio'];
+      if (codice == 1017) {
+        throw NotVerifiedError(
+            codice: codice, messaggio: messaggio, idUtente: body['IdUtente']);
+      } else {
+        throw CustomError(codice: codice, messaggio: messaggio);
+      }
+    }
+    return response;
+  }
+
+  @protected
+  Future<http.Response> delete(
+      String route, int codeSuccess, bool authenticated) async {
+    route = await _removePlaceholders(route);
+    Uri url = Uri.http(authority, route);
+    Map<String, String> headers;
+    if (authenticated) {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      var token = preferences.getString('token');
+      if (token == null) throw Exception("token is null");
+      headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      };
+    } else {
+      headers = {"Content-Type": "application/json"};
+    }
+    final http.Response response = await http
+        .delete(
+          url,
+          headers: headers,
+        )
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != codeSuccess) {
+      var body = jsonDecode(response.body);
+      var codice = body['Codice'];
+      var messaggio = body['Messaggio'];
+      if (codice == 1017) {
+        throw NotVerifiedError(
+            codice: codice, messaggio: messaggio, idUtente: body['IdUtente']);
+      } else {
+        throw CustomError(codice: codice, messaggio: messaggio);
+      }
+    }
+    return response;
+  }
+
+  @protected
+  Future<http.Response> get(
+      String route, int codeSuccess, bool authenticated) async {
+    route = await _removePlaceholders(route);
+    Uri url = Uri.http(authority, route);
+    Map<String, String> headers;
+    if (authenticated) {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      var token = preferences.getString('token');
+      if (token == null) throw Exception("token is null");
+      headers = {"Authorization": "Bearer $token"};
+    } else {
+      headers = {};
+    }
+    final http.Response response = await http
+        .get(
+          url,
+          headers: headers,
+        )
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != codeSuccess) {
+      var body = jsonDecode(response.body);
+      var codice = body['Codice'];
+      var messaggio = body['Messaggio'];
+      if (codice == 1017) {
+        throw NotVerifiedError(
+            codice: codice, messaggio: messaggio, idUtente: body['IdUtente']);
+      } else {
+        throw CustomError(codice: codice, messaggio: messaggio);
+      }
+    }
+    return response;
+  }
+
+  Future<String> _removePlaceholders(String s) async {
+    if (!s.contains("{id}")) return s;
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var userId = preferences.getString('id');
+    if (userId == null) throw Exception("userId is null");
+    return s.replaceAll("{id}", userId);
   }
 }
