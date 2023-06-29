@@ -42,13 +42,27 @@ class BuonoController extends Controller {
         $stmt->execute([$id]);
 
         $result = $stmt->get_result();
-        if ($result->num_rows == 0 || ($userid != $id && $role != "admin")) {
+        if ($result->num_rows == 0) {
             $response->getBody()->write(Err::BUONO_NOT_FOUND());
             return $response
                 ->withStatus(400)
                 ->withHeader('Content-Type', 'application/json');
         }
 
+        $row = $result->fetch_assoc();
+
+        $owner = $row['Utente'];
+        if ($userid != $owner && $role != "admin" && $role != "ristorante") {
+            $response->getBody()->write(Err::NOT_AUTHORIZED());
+            return $response
+                ->withStatus(401)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+
+        $result = $stmt->get_result();
         $json = $this->encode_result($result);
 
         $response->getBody()->write($json);
@@ -144,11 +158,11 @@ class BuonoController extends Controller {
         $userid = $token->sub;
         $role = $token->role;
 
-        if($userid != $id && $role != "admin") {
+        if ($userid != $id && $role != "admin") {
             $response->getBody()->write(Err::NOT_AUTHORIZED());
             return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(401);
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(401);
         }
 
         $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Valido, Tipo, BIN_TO_UUID(Utente) AS Utente, BIN_TO_UUID(Ristorante) AS Ristorante FROM BuoniPasto WHERE Utente = UUID_TO_BIN(?)";
@@ -174,11 +188,11 @@ class BuonoController extends Controller {
         $userid = $token->sub;
         $role = $token->role;
 
-        if($userid != $id && $role != "admin") {
+        if ($userid != $id && $role != "admin") {
             $response->getBody()->write(Err::NOT_AUTHORIZED());
             return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(401);
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(401);
         }
 
         $query = "SELECT BIN_TO_UUID(IdBuono) AS IdBuono, Tipo, BIN_TO_UUID(Utente) AS Utente, BIN_TO_UUID(Ristorante) AS Ristorante FROM BuoniPasto WHERE Ristorante = UUID_TO_BIN(?)";
@@ -203,7 +217,7 @@ class BuonoController extends Controller {
 
         $token = $request->getAttribute("token");
         $ristoranteid = $token->sub;
-        if($token->role == "admin") {
+        if ($token->role == "admin") {
             $ristoranteid = NULL;
         }
 

@@ -208,7 +208,7 @@ $app->get('/buoni_pasto/{id}', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('BuonoController');
     return $controller->show($request, $response, $args);
-})->add(new JwtMiddleware(['admin', 'ristorante']));
+})->add(new JwtMiddleware(['admin', 'ristorante', 'iscritto']));
 
 $app->post('/buoni_pasto', function ($request, $response, $args) {
     global $container;
