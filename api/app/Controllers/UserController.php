@@ -310,7 +310,6 @@ class UserController extends Controller {
         $data = $request->getParsedBody();
         $code = $data['Codice'];
         $userid = $args['id'];
-        echo $userid;
         $query = "UPDATE Utenti SET Verificato = TRUE WHERE IdUtente = UUID_TO_BIN(?) AND Verificato = FALSE AND CodiceVerifica = ? AND TIMESTAMPDIFF(minute, DataVerifica, NOW()) < 5";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$userid, $code]);
