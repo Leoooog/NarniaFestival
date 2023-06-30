@@ -164,7 +164,7 @@ $app->post('/ristoranti', function ($request, $response, $args) {
     return $controller->create($request, $response, $args);
 })->add(new JwtMiddleware(['admin']));
 
-$app->put('/ristoranti', function ($request, $response, $args) {
+$app->put('/ristoranti/{id}', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('RistoranteController');
     return $controller->update($request, $response, $args);
@@ -177,7 +177,7 @@ $app->put('/ristoranti/{id}/menu', function ($request, $response, $args) {
 })->add(new JwtMiddleware(['admin', 'ristorante']));
 
 
-$app->delete('/ristoranti', function ($request, $response, $args) {
+$app->delete('/ristoranti/{id}', function ($request, $response, $args) {
     global $container;
     $controller = $container->get('RistoranteController');
     return $controller->delete($request, $response, $args);
@@ -228,7 +228,81 @@ $app->post('/buoni_pasto/{id}/brucia', function ($request, $response, $args) {
     return $controller->burn($request, $response, $args);
 })->add(new JwtMiddleware(['admin', 'ristorante']));
 
-$app->options('/{routes:.+}', function ($request, $response, $args) {
+
+// ---------------------------OPTIONS--------------------------
+$app->options('/utenti', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, POST, OPTIONS');
     return $response;
 });
+
+$app->options('/utenti/{id}/new_code', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'POST, OPTIONS');
+    return $response;
+});
+
+$app->options('/utenti/me', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, OPTIONS');
+    return $response;
+});
+
+$app->options('/utenti/{id}', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, PUT, DELETE, OPTIONS');
+    return $response;
+});
+
+$app->options('/login', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'POST, OPTIONS');
+    return $response;
+});
+
+$app->options('/logout', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'POST, OPTIONS');
+    return $response;
+});
+
+$app->options('/eventi', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, POST, PUT, DELETE, OPTIONS');
+    return $response;
+});
+
+$app->options('/eventi/{id}', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, OPTIONS');
+    return $response;
+});
+
+$app->options('/prenotazioni', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, POST, OPTIONS');
+    return $response;
+});
+
+$app->options('/utenti/{id}/prenotazioni', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, OPTIONS');
+    return $response;
+});
+
+$app->options('/prenotazioni/{id}', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, PUT, DELETE, OPTIONS');
+    return $response;
+});
+
+$app->options('/prenotazioni/{id}/validate', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'POST, OPTIONS');
+    return $response;
+});
+
+$app->options('/ristoranti/{id}', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, POST, PUT, DELETE, OPTIONS');
+    return $response;
+});
+
+$app->options('/ristoranti', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'GET, OPTIONS');
+    return $response;
+});
+
+$app->options('/ristoranti/{id}/menu', function (Request $request, Response $response, array $args) {
+    $response = $response->withHeader('Allow', 'PUT, OPTIONS');
+    return $response;
+});
+
 ?>
